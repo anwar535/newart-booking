@@ -340,7 +340,7 @@ function Step1({
       <Header eyebrow="Step 01" title="Pick your date & time" sub="اختر التاريخ والوقت المناسبين." />
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <CalendarGrid cursor={cursor} setCursor={setCursor} selected={date} onSelect={(d) => { setDate(d); setStartTime(null); }} />
+        <CalendarGrid cursor={cursor} setCursor={setCursor} selected={date} onSelect={(d: Date) => { setDate(d); setStartTime(null); }} />
 
         <div className="space-y-6">
           <div>
