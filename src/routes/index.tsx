@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   Calendar as CalendarIcon, Clock, Camera, Aperture, Lightbulb, Wrench, Monitor,
   Wifi, Sparkles, Palette, Mic2, Volume2, ShieldCheck, ChevronLeft, ChevronRight,
   Check, CreditCard, Smartphone, Banknote, Upload, PartyPopper, X, ArrowDown,
-  PlayCircle, MapPin, Star,
+  PlayCircle, MapPin, Star, Sun, Moon, Languages, Mail, Phone, MessageCircle, Instagram,
 } from "lucide-react";
 import logoAsset from "@/assets/newart-logo.png.asset.json";
 
@@ -22,62 +22,279 @@ export const Route = createFileRoute("/")({
 
 const HOURLY_RATE = 150;
 
-type AddOn = { id: string; name: string; arName: string; price: number; perHour: boolean; icon: any };
+/* -------------------- i18n -------------------- */
+type Lang = "en" | "ar";
+type Dict = Record<string, { en: string; ar: string }>;
+
+const T: Dict = {
+  // Nav
+  nav_showreel: { en: "Showreel", ar: "العرض" },
+  nav_book: { en: "Book", ar: "احجز" },
+  nav_reserve: { en: "Reserve", ar: "احجز الآن" },
+  // Hero
+  hero_location: { en: "Riyadh · Jeddah · Online", ar: "الرياض · جدة · أونلاين" },
+  hero_h1_a: { en: "Where every", ar: "حيث يتحوّل كل" },
+  hero_h1_b: { en: "frame", ar: "إطار" },
+  hero_h1_c: { en: "becomes a", ar: "إلى" },
+  hero_h1_d: { en: "story", ar: "قصة" },
+  hero_sub: { en: "Premium studios, pro gear, and a booking flow as polished as a first-class lounge.", ar: "استوديوهات فاخرة، معدات احترافية، وتجربة حجز بأناقة الدرجة الأولى." },
+  hero_sub2: { en: "Book your creative space in minutes — تجربة تليق بإنتاجك.", ar: "احجز مساحتك الإبداعية في دقائق — بأسلوب يليق بإنتاجك." },
+  hero_cta: { en: "Book Your Space Now", ar: "احجز مساحتك الآن" },
+  hero_watch: { en: "Watch the Showreel", ar: "شاهد العرض" },
+  stat_prod: { en: "Productions", ar: "إنتاج" },
+  stat_conc: { en: "Concierge", ar: "خدمة" },
+  stat_score: { en: "Creator score", ar: "تقييم المبدعين" },
+  live_tour: { en: "LIVE TOUR", ar: "جولة مباشرة" },
+  studio_a: { en: "Studio A · Riyadh", ar: "استوديو A · الرياض" },
+  showreel_title: { en: "Showreel · 2026", ar: "العرض · 2026" },
+  showreel_sub: { en: "A glimpse of recent productions, sets & locations.", ar: "لمحة من أحدث الإنتاجات والمواقع." },
+
+  // Booking section header
+  section_eyebrow: { en: "Booking · الحجز", ar: "الحجز · Booking" },
+  section_title: { en: "Reserve your studio in four steps.", ar: "احجز استوديوك في أربع خطوات." },
+  section_sub: { en: "A frictionless flow inspired by first-class check-in. Live pricing, transparent terms, instant confirmation.", ar: "تجربة حجز سلسة بأسلوب الدرجة الأولى. تسعير مباشر، شروط واضحة، تأكيد فوري." },
+
+  // Stepper
+  step_date: { en: "Date & Time", ar: "التاريخ والوقت" },
+  step_equip: { en: "Equipment", ar: "المعدات" },
+  step_policies: { en: "Policies", ar: "السياسات" },
+  step_checkout: { en: "Checkout", ar: "الدفع" },
+
+  back: { en: "Back", ar: "رجوع" },
+  continue: { en: "Continue", ar: "متابعة" },
+  confirm_pay: { en: "Confirm & Pay", ar: "تأكيد ودفع" },
+
+  // Step 1
+  s1_eyebrow: { en: "Step 01", ar: "الخطوة 01" },
+  s1_title: { en: "Pick your date & time", ar: "اختر التاريخ والوقت" },
+  s1_sub: { en: "Select the date and start time that suit you.", ar: "اختر التاريخ والوقت المناسبين." },
+  start_time: { en: "Start time", ar: "وقت البدء" },
+  hours_label: { en: "Number of hours", ar: "عدد الساعات" },
+  pick_date_first: { en: "Select a date first to see available hourly slots.", ar: "اختر التاريخ أولاً لعرض الفترات المتاحة." },
+  hours_unit: { en: "hours", ar: "ساعات" },
+  hour_unit: { en: "hour", ar: "ساعة" },
+  working_hours: { en: "Working hours: Sat–Thu 9:00–22:00 · Fri 16:00–22:00", ar: "ساعات العمل: السبت–الخميس 9:00–22:00 · الجمعة 16:00–22:00" },
+  base_rate: { en: "Base space rate", ar: "سعر المساحة الأساسي" },
+  total_space: { en: "Total space", ar: "إجمالي المساحة" },
+
+  // Step 2
+  s2_eyebrow: { en: "Step 02", ar: "الخطوة 02" },
+  s2_title: { en: "Equipment & inclusions", ar: "المعدات والمشمولات" },
+  s2_sub: { en: "What's included and your premium add-ons.", ar: "ما يُشمل مع المساحة وإضافاتك المميزة." },
+  included_title: { en: "Included with Space", ar: "مشمول مع المساحة" },
+  included_sub: { en: "Complimentary with every booking", ar: "مشمول مجاناً مع كل حجز" },
+  free: { en: "FREE", ar: "مجاناً" },
+  addons_title: { en: "Premium Add-ons", ar: "إضافات احترافية" },
+  addons_sub: { en: "Professional gear at transparent prices", ar: "معدات احترافية بأسعار شفافة" },
+  flat: { en: "flat", ar: "ثابت" },
+  insurance_title: { en: "Refundable Security Insurance", ar: "تأمين قابل للاسترداد" },
+  insurance_low: { en: "Base insurance of 200 SAR applies. Fully refundable after the session.", ar: "تأمين أساسي 200 ريال، يُسترد بالكامل بعد الجلسة." },
+  insurance_high: { en: "Premium gear detected — insurance raised to 500 SAR. Fully refundable after inspection.", ar: "تم اختيار معدات احترافية — التأمين 500 ريال، يُسترد بالكامل بعد المعاينة." },
+  refundable: { en: "refundable", ar: "قابل للاسترداد" },
+
+  // Included items
+  inc_wifi: { en: "High-speed Wi-Fi", ar: "إنترنت عالي السرعة" },
+  inc_makeup: { en: "Makeup room", ar: "غرفة مكياج" },
+  inc_styling: { en: "Styling area", ar: "منطقة تنسيق" },
+  inc_triggers: { en: "Triggers", ar: "مشغّلات إضاءة" },
+  inc_sound: { en: "Basic sound system", ar: "نظام صوتي أساسي" },
+
+  // Add-ons
+  ao_photographer: { en: "Photographer (Camera + Pro Operator)", ar: "مصور محترف + كاميرا" },
+  ao_lens: { en: "Premium Lens", ar: "عدسة احترافية" },
+  ao_lighting: { en: "Studio Lighting", ar: "إضاءة احترافية" },
+  ao_stand: { en: "Studio Stand (C-Stand)", ar: "استاند تصوير" },
+  ao_autocue: { en: "Teleprompter (Autocue)", ar: "اوتوكيو" },
+
+  // Step 3
+  s3_eyebrow: { en: "Step 03", ar: "الخطوة 03" },
+  s3_title: { en: "Policies & Security Deposit", ar: "السياسات ومبلغ التأمين" },
+  s3_sub: { en: "Review terms and accept to continue.", ar: "اطّلع على الشروط ووافق للمتابعة." },
+  deposit_title: { en: "Refundable Security Deposit", ar: "مبلغ تأمين قابل للاسترداد" },
+  deposit_body: { en: "A refundable deposit is collected to cover potential damages. It is returned in full within 3 business days following a clean post-session inspection.", ar: "يُسترد مبلغ التأمين بالكامل خلال 3 أيام عمل بعد التحقق من سلامة الأستوديو والمعدات." },
+
+  pol1_t: { en: "Cancellation Policy", ar: "سياسة الإلغاء" },
+  pol1_b: { en: "Free cancellation up to 48 hours before the booking start time. Cancellations within 48 hours forfeit 50% of the space fee. No-show forfeits 100%.", ar: "إلغاء مجاني قبل 48 ساعة من بداية الحجز. الإلغاء خلال 48 ساعة يخصم 50% من قيمة المساحة، وعدم الحضور يخصم 100%." },
+  pol2_t: { en: "Damage & Property", ar: "الأضرار والممتلكات" },
+  pol2_b: { en: "The client is liable for any damage to studio property or equipment. Damages are deducted from the refundable security deposit.", ar: "يتحمل العميل أي أضرار للأستوديو أو المعدات. تُخصم من مبلغ التأمين القابل للاسترداد." },
+  pol3_t: { en: "Timing & Conduct", ar: "الالتزام والوقت" },
+  pol3_b: { en: "Sessions start and end strictly within the booked slot. Overtime is charged at the hourly rate. No smoking, food, or unauthorized guests inside the shooting area.", ar: "تبدأ الجلسات وتنتهي ضمن الوقت المحجوز فقط. يُحتسب الوقت الإضافي بالسعر الساعي. ممنوع التدخين أو الطعام أو الضيوف غير المصرح بهم." },
+
+  // Step 4
+  s4_eyebrow: { en: "Step 04", ar: "الخطوة 04" },
+  s4_title: { en: "Checkout & Payment", ar: "الدفع وإتمام الحجز" },
+  s4_sub: { en: "Choose your preferred payment method.", ar: "اختر طريقة الدفع المفضلة." },
+  pay_apple: { en: "Apple Pay", ar: "آبل باي" },
+  pay_tabby: { en: "Tabby · 4 splits", ar: "تابي · 4 دفعات" },
+  pay_tamara: { en: "Tamara · 4 splits", ar: "تمارا · 4 دفعات" },
+  pay_bank: { en: "Bank Transfer", ar: "تحويل بنكي" },
+  apple_hint: { en: "Authorize {n} SAR using Face ID on your device.", ar: "أكّد دفع {n} ريال باستخدام Face ID على جهازك." },
+  apple_btn: { en: "Pay with  Pay", ar: "ادفع بـ Apple Pay" },
+  split_label: { en: "split in 4", ar: "مقسّمة على 4" },
+  split_payments: { en: "× 4 payments", ar: "× 4 دفعات" },
+  no_interest: { en: "0% interest", ar: "0% فوائد" },
+  payment_n: { en: "Payment", ar: "دفعة" },
+  today: { en: "Today", ar: "اليوم" },
+  bank_name: { en: "Bank Name", ar: "اسم البنك" },
+  account_name: { en: "Account Name", ar: "اسم الحساب" },
+  iban: { en: "IBAN", ar: "رقم الآيبان" },
+  amount_due: { en: "Amount Due", ar: "المبلغ المستحق" },
+  upload_receipt: { en: "Upload Receipt Image", ar: "ارفع صورة الإيصال" },
+  upload_hint: { en: "PNG, JPG or PDF · up to 10MB", ar: "PNG أو JPG أو PDF · حتى 10MB" },
+  choose_file: { en: "Choose file", ar: "اختر ملف" },
+
+  // Summary
+  live_estimate: { en: "Live Estimate", ar: "التقدير الحي" },
+  vat_inclusive: { en: "VAT inclusive · updated live", ar: "شامل الضريبة · يُحدّث مباشرة" },
+  date: { en: "Date", ar: "التاريخ" },
+  start: { en: "Start", ar: "البداية" },
+  hours_short: { en: "Hours", ar: "الساعات" },
+  hr: { en: "hr", ar: "س" },
+  studio_space: { en: "Studio space", ar: "مساحة الاستوديو" },
+  addons_word: { en: "Add-ons", ar: "الإضافات" },
+  addons_total: { en: "Add-ons total", ar: "إجمالي الإضافات" },
+  refundable_insurance: { en: "Refundable insurance", ar: "تأمين قابل للاسترداد" },
+  premium_tier: { en: "Premium gear tier", ar: "فئة المعدات الاحترافية" },
+  standard_tier: { en: "Standard", ar: "أساسي" },
+  final_total: { en: "Final total", ar: "الإجمالي النهائي" },
+
+  // Success
+  booking_confirmed: { en: "Booking Confirmed!", ar: "تم تأكيد الحجز!" },
+  see_you: { en: "We'll see you at the studio soon.", ar: "نراك قريباً في الأستوديو." },
+  ref_no: { en: "Reference Number", ar: "رقم المرجع" },
+  duration: { en: "Duration", ar: "المدة" },
+  total: { en: "Total", ar: "الإجمالي" },
+  confirmation_sent: { en: "A confirmation has been sent to your email. Our concierge will contact you 24 hours before your session.", ar: "تم إرسال التأكيد إلى بريدك الإلكتروني. سيتواصل معك فريقنا قبل 24 ساعة من الجلسة." },
+  done: { en: "Done", ar: "تم" },
+
+  // Footer
+  ft_tag: { en: "Where productions feel premium and bookings feel effortless.", ar: "حيث يكون الإنتاج فاخراً والحجز سهلاً." },
+  ft_contact: { en: "Contact", ar: "تواصل" },
+  ft_email: { en: "Email", ar: "البريد الإلكتروني" },
+  ft_phone: { en: "Phone", ar: "الهاتف" },
+  ft_whatsapp: { en: "WhatsApp", ar: "واتساب" },
+  ft_address: { en: "Address", ar: "العنوان" },
+  ft_address_value: { en: "Islamabad, Al Mansoura, Riyadh", ar: "إسلام أباد، المنصورة، الرياض" },
+  ft_follow: { en: "Follow", ar: "تابعنا" },
+  ft_rights: { en: "© 2026 NewArt Studio · All rights reserved", ar: "© 2026 استوديو نيو آرت · جميع الحقوق محفوظة" },
+
+  sar: { en: "SAR", ar: "ريال" },
+};
+
+type I18n = { lang: Lang; setLang: (l: Lang) => void; t: (k: keyof typeof T) => string; dir: "ltr" | "rtl" };
+const I18nCtx = createContext<I18n>({ lang: "en", setLang: () => {}, t: (k) => T[k]?.en ?? String(k), dir: "ltr" });
+const useI18n = () => useContext(I18nCtx);
+
+/* -------------------- Add-ons / Inclusions data -------------------- */
+type AddOn = { id: string; key: keyof typeof T; price: number; perHour: boolean; icon: any };
 const ADDONS: AddOn[] = [
-  { id: "photographer", name: "Photographer (Camera + Pro Operator)", arName: "مصور محترف + كاميرا", price: 200, perHour: true, icon: Camera },
-  { id: "lens", name: "Premium Lens", arName: "عدسة احترافية", price: 150, perHour: false, icon: Aperture },
-  { id: "lighting", name: "Professional Lighting Set", arName: "طقم إضاءة احترافي", price: 100, perHour: false, icon: Lightbulb },
-  { id: "cstand", name: "Heavy Duty C-Stand", arName: "حامل C-Stand", price: 50, perHour: false, icon: Wrench },
-  { id: "autocue", name: "Autocue (Teleprompter)", arName: "تلقين إلكتروني", price: 100, perHour: false, icon: Monitor },
+  { id: "photographer", key: "ao_photographer", price: 200, perHour: true, icon: Camera },
+  { id: "lens", key: "ao_lens", price: 150, perHour: false, icon: Aperture },
+  { id: "lighting", key: "ao_lighting", price: 100, perHour: false, icon: Lightbulb },
+  { id: "cstand", key: "ao_stand", price: 50, perHour: false, icon: Wrench },
+  { id: "autocue", key: "ao_autocue", price: 100, perHour: false, icon: Monitor },
 ];
 
-const INCLUDED = [
-  { icon: Wifi, en: "High-speed Wi-Fi", ar: "إنترنت عالي السرعة" },
-  { icon: Sparkles, en: "Makeup room", ar: "غرفة مكياج" },
-  { icon: Palette, en: "Styling area", ar: "منطقة تنسيق" },
-  { icon: Mic2, en: "Triggers", ar: "مشغّلات إضاءة" },
-  { icon: Volume2, en: "Basic sound system", ar: "نظام صوتي أساسي" },
+const INCLUDED: { icon: any; key: keyof typeof T }[] = [
+  { icon: Wifi, key: "inc_wifi" },
+  { icon: Sparkles, key: "inc_makeup" },
+  { icon: Palette, key: "inc_styling" },
+  { icon: Mic2, key: "inc_triggers" },
+  { icon: Volume2, key: "inc_sound" },
 ];
 
-const POLICIES = [
-  {
-    title: "Cancellation Policy",
-    arTitle: "سياسة الإلغاء",
-    body: "Free cancellation up to 48 hours before the booking start time. Cancellations within 48 hours forfeit 50% of the space fee. No-show forfeits 100%.",
-    arBody: "إلغاء مجاني قبل 48 ساعة من بداية الحجز. الإلغاء خلال 48 ساعة يخصم 50% من قيمة المساحة، وعدم الحضور يخصم 100%.",
-  },
-  {
-    title: "Damage & Property",
-    arTitle: "الأضرار والممتلكات",
-    body: "The client is liable for any damage to studio property or equipment. Damages are deducted from the refundable security deposit; if damages exceed the deposit, the client agrees to settle the balance.",
-    arBody: "يتحمل العميل أي أضرار للأستوديو أو المعدات. تُخصم من مبلغ التأمين، وإن تجاوزت قيمته يلتزم العميل بتسوية الفرق.",
-  },
-  {
-    title: "Timing & Conduct",
-    arTitle: "الالتزام والوقت",
-    body: "Sessions start and end strictly within the booked slot. Overtime is charged at the hourly rate. No smoking, food, or unauthorized guests inside the shooting area.",
-    arBody: "تبدأ الجلسات وتنتهي ضمن الوقت المحجوز فقط. يحتسب الوقت الإضافي بالسعر الساعي. ممنوع التدخين أو الطعام أو الضيوف غير المصرح بهم داخل منطقة التصوير.",
-  },
+const POLICY_KEYS: { t: keyof typeof T; b: keyof typeof T }[] = [
+  { t: "pol1_t", b: "pol1_b" },
+  { t: "pol2_t", b: "pol2_b" },
+  { t: "pol3_t", b: "pol3_b" },
 ];
 
+/* -------------------- Root -------------------- */
 function Index() {
+  const [lang, setLangState] = useState<Lang>("en");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    const sl = (typeof window !== "undefined" && localStorage.getItem("na_lang")) as Lang | null;
+    const st = (typeof window !== "undefined" && localStorage.getItem("na_theme")) as "dark" | "light" | null;
+    if (sl) setLangState(sl);
+    if (st) setTheme(st);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    localStorage.setItem("na_lang", lang);
+  }, [lang]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("na_theme", theme);
+  }, [theme]);
+
+  const i18n: I18n = useMemo(() => ({
+    lang,
+    setLang: setLangState,
+    dir: lang === "ar" ? "rtl" : "ltr",
+    t: (k) => (T[k] ? T[k][lang] : String(k)),
+  }), [lang]);
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Hero />
-      <Booking />
-      <Footer />
+    <I18nCtx.Provider value={i18n}>
+      <div className="min-h-screen bg-background text-foreground" dir={i18n.dir}>
+        <FloatingControls theme={theme} setTheme={setTheme} />
+        <Hero />
+        <Booking />
+        <Footer />
+      </div>
+    </I18nCtx.Provider>
+  );
+}
+
+/* -------------------- Floating Controls -------------------- */
+function FloatingControls({ theme, setTheme }: { theme: "dark" | "light"; setTheme: (t: "dark" | "light") => void }) {
+  const { lang, setLang } = useI18n();
+  return (
+    <div className="fixed top-4 end-4 z-50 flex items-center gap-2 rounded-full bg-card/80 backdrop-blur-xl ring-1 ring-border shadow-soft px-2 py-2">
+      <button
+        onClick={() => setLang(lang === "en" ? "ar" : "en")}
+        className="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold text-foreground hover:bg-muted transition"
+        aria-label="Toggle language"
+      >
+        <Languages className="h-4 w-4 text-accent" />
+        {lang === "en" ? "العربية" : "English"}
+      </button>
+      <div className="h-5 w-px bg-border" />
+      <button
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        className="grid h-8 w-8 place-items-center rounded-full hover:bg-muted text-foreground transition"
+        aria-label="Toggle theme"
+      >
+        {theme === "dark" ? <Sun className="h-4 w-4 text-accent" /> : <Moon className="h-4 w-4 text-primary" />}
+      </button>
     </div>
   );
 }
 
 /* -------------------- HERO -------------------- */
 function Hero() {
+  const { t, lang } = useI18n();
   return (
     <header className="relative overflow-hidden bg-ink text-ink-foreground">
-      <div className="absolute inset-0 bg-mesh opacity-60" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--ink)_75%)]" />
+      {/* Background Video */}
+      <div className="absolute inset-0 overflow-hidden">
+        <iframe
+          src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview"
+          allow="autoplay"
+          className="absolute left-1/2 top-1/2 h-[140%] w-[180%] -translate-x-1/2 -translate-y-1/2 border-0 pointer-events-none"
+          title="NewArt Studio background"
+        />
+      </div>
+      <div className="absolute inset-0 bg-ink/55" />
+      <div className="absolute inset-0 bg-mesh opacity-40" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--ink)_85%)]" />
+
       <div className="relative mx-auto max-w-7xl px-6 pt-6 pb-24 sm:pb-32">
-        {/* Nav */}
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur ring-1 ring-white/15">
@@ -85,51 +302,58 @@ function Hero() {
             </div>
           </div>
           <div className="hidden items-center gap-8 text-sm text-white/70 md:flex">
-            <a href="#showreel" className="hover:text-white transition">Showreel</a>
-            <a href="#booking" className="hover:text-white transition">Book</a>
-            <a href="#booking" className="hover:text-white transition">العربية</a>
+            <a href="#showreel" className="hover:text-white transition">{t("nav_showreel")}</a>
+            <a href="#booking" className="hover:text-white transition">{t("nav_book")}</a>
           </div>
           <a
             href="#booking"
             className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground shadow-glow transition hover:scale-105"
           >
-            Reserve <ChevronRight className="h-4 w-4" />
+            {t("nav_reserve")} <ChevronRight className="h-4 w-4 rtl:rotate-180" />
           </a>
         </nav>
 
-        {/* Headline */}
         <div className="mt-20 grid items-end gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white/70 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Riyadh · Jeddah · Online
+              {t("hero_location")}
             </div>
             <h1 className="mt-6 text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
-              Where every <span className="text-grad-brand">frame</span><br />
-              becomes a <span className="text-grad-brand">story</span>.
+              {lang === "en" ? (
+                <>
+                  {t("hero_h1_a")} <span className="text-grad-brand">{t("hero_h1_b")}</span><br />
+                  {t("hero_h1_c")} <span className="text-grad-brand">{t("hero_h1_d")}</span>.
+                </>
+              ) : (
+                <>
+                  {t("hero_h1_a")} <span className="text-grad-brand">{t("hero_h1_b")}</span><br />
+                  {t("hero_h1_c")} <span className="text-grad-brand">{t("hero_h1_d")}</span>.
+                </>
+              )}
             </h1>
             <p className="mt-6 max-w-xl text-lg text-white/70">
-              Premium studios, pro gear, and a booking flow as polished as a first-class lounge.
-              <span className="block mt-2 text-white/55 text-base">احجز مساحتك الإبداعية في دقائق — بأسلوب يليق بإنتاجك.</span>
+              {t("hero_sub")}
+              <span className="block mt-2 text-white/55 text-base">{t("hero_sub2")}</span>
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <a
                 href="#booking"
                 className="group inline-flex items-center gap-3 rounded-full bg-accent px-7 py-4 text-base font-bold text-accent-foreground shadow-glow transition hover:shadow-elegant"
               >
-                Book Your Space Now
+                {t("hero_cta")}
                 <ArrowDown className="h-5 w-5 transition group-hover:translate-y-0.5" />
               </a>
               <a href="#showreel" className="inline-flex items-center gap-2 text-sm text-white/80 hover:text-white">
-                <PlayCircle className="h-5 w-5" /> Watch the Showreel
+                <PlayCircle className="h-5 w-5" /> {t("hero_watch")}
               </a>
             </div>
 
             <div className="mt-12 grid grid-cols-3 gap-6 max-w-md">
               {[
-                { k: "1,200+", v: "Productions" },
-                { k: "24/7", v: "Concierge" },
-                { k: "4.9★", v: "Creator score" },
+                { k: "1,200+", v: t("stat_prod") },
+                { k: "24/7", v: t("stat_conc") },
+                { k: "4.9★", v: t("stat_score") },
               ].map((s) => (
                 <div key={s.v}>
                   <div className="text-2xl font-bold text-white">{s.k}</div>
@@ -139,15 +363,14 @@ function Hero() {
             </div>
           </div>
 
-          {/* Showreel */}
           <div id="showreel" className="lg:col-span-5">
             <div className="group relative aspect-[4/5] overflow-hidden rounded-3xl ring-1 ring-white/15 shadow-elegant">
               <div className="absolute inset-0 bg-grad-brand opacity-90" />
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_55%)]" />
               <div className="absolute inset-0 flex flex-col justify-between p-6">
                 <div className="flex items-center justify-between text-white/90 text-xs uppercase tracking-widest">
-                  <span className="rounded-full bg-black/30 px-3 py-1 backdrop-blur">LIVE TOUR</span>
-                  <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> Studio A · Riyadh</span>
+                  <span className="rounded-full bg-black/30 px-3 py-1 backdrop-blur">{t("live_tour")}</span>
+                  <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {t("studio_a")}</span>
                 </div>
                 <button className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-white/15 backdrop-blur ring-1 ring-white/40 transition group-hover:scale-110">
                   <div className="grid h-16 w-16 place-items-center rounded-full bg-white text-primary">
@@ -155,8 +378,8 @@ function Hero() {
                   </div>
                 </button>
                 <div>
-                  <div className="text-white text-2xl font-bold">Showreel · 2026</div>
-                  <div className="mt-1 text-white/80 text-sm">A glimpse of recent productions, sets & locations.</div>
+                  <div className="text-white text-2xl font-bold">{t("showreel_title")}</div>
+                  <div className="mt-1 text-white/80 text-sm">{t("showreel_sub")}</div>
                   <div className="mt-4 flex items-center gap-2">
                     {[0,1,2,3].map(i => (
                       <div key={i} className={`h-1 flex-1 rounded-full ${i===1?"bg-white":"bg-white/30"}`} />
@@ -174,6 +397,7 @@ function Hero() {
 
 /* -------------------- BOOKING WIZARD -------------------- */
 function Booking() {
+  const { t } = useI18n();
   const [step, setStep] = useState(1);
   const [date, setDate] = useState<Date | null>(null);
   const [startTime, setStartTime] = useState<string | null>(null);
@@ -191,7 +415,7 @@ function Booking() {
 
   const canNext = useMemo(() => {
     if (step === 1) return !!date && !!startTime && hours > 0;
-    if (step === 3) return POLICIES.every((_, i) => policies[i]);
+    if (step === 3) return POLICY_KEYS.every((_, i) => policies[i]);
     return true;
   }, [step, date, startTime, hours, policies]);
 
@@ -203,16 +427,14 @@ function Booking() {
   return (
     <section id="booking" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-28">
       <div className="mb-12 max-w-2xl">
-        <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">Booking · الحجز</div>
-        <h2 className="mt-3 text-4xl sm:text-5xl font-bold text-primary">Reserve your studio in four steps.</h2>
-        <p className="mt-4 text-muted-foreground">A frictionless flow inspired by first-class check-in. Live pricing, transparent terms, instant confirmation.</p>
+        <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("section_eyebrow")}</div>
+        <h2 className="mt-3 text-4xl sm:text-5xl font-bold text-primary">{t("section_title")}</h2>
+        <p className="mt-4 text-muted-foreground">{t("section_sub")}</p>
       </div>
 
-      {/* Stepper */}
       <Stepper step={step} setStep={setStep} />
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_380px]">
-        {/* Main panel */}
         <div className="rounded-3xl bg-card shadow-soft ring-1 ring-border overflow-hidden">
           <div className="p-6 sm:p-10">
             {step === 1 && (
@@ -227,14 +449,13 @@ function Booking() {
             {step === 4 && <Step4 payment={payment} setPayment={setPayment} total={total} />}
           </div>
 
-          {/* Nav buttons */}
           <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 sm:px-10 py-5">
             <button
               onClick={() => setStep(Math.max(1, step - 1))}
               disabled={step === 1}
               className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-foreground/70 disabled:opacity-40 hover:text-foreground transition"
             >
-              <ChevronLeft className="h-4 w-4" /> Back
+              <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
             </button>
             {step < 4 ? (
               <button
@@ -242,20 +463,19 @@ function Booking() {
                 disabled={!canNext}
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-elegant disabled:opacity-40 transition hover:bg-primary/90"
               >
-                Continue <ChevronRight className="h-4 w-4" />
+                {t("continue")} <ChevronRight className="h-4 w-4 rtl:rotate-180" />
               </button>
             ) : (
               <button
                 onClick={confirm}
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-3 text-sm font-bold text-accent-foreground shadow-glow transition hover:scale-[1.02]"
               >
-                Confirm & Pay · {total} SAR
+                {t("confirm_pay")} · {total} {t("sar")}
               </button>
             )}
           </div>
         </div>
 
-        {/* Sticky Summary */}
         <Summary
           date={date} startTime={startTime} hours={hours}
           spacePrice={spacePrice} addonItems={addonItems} addonsTotal={addonsTotal}
@@ -276,11 +496,12 @@ function Booking() {
 
 /* -------------------- Stepper -------------------- */
 function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void }) {
+  const { t } = useI18n();
   const steps = [
-    { n: 1, label: "Date & Time", icon: CalendarIcon },
-    { n: 2, label: "Equipment", icon: Camera },
-    { n: 3, label: "Policies", icon: ShieldCheck },
-    { n: 4, label: "Checkout", icon: CreditCard },
+    { n: 1, key: "step_date" as const, icon: CalendarIcon },
+    { n: 2, key: "step_equip" as const, icon: Camera },
+    { n: 3, key: "step_policies" as const, icon: ShieldCheck },
+    { n: 4, key: "step_checkout" as const, icon: CreditCard },
   ];
   return (
     <div className="relative">
@@ -301,7 +522,7 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
                 {done ? <Check className="h-5 w-5" /> : <s.icon className="h-5 w-5" />}
               </button>
               <span className={`mt-3 text-xs sm:text-sm font-medium ${active || done ? "text-foreground" : "text-muted-foreground"}`}>
-                {s.label}
+                {t(s.key)}
               </span>
             </li>
           );
@@ -315,12 +536,12 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
 function Step1({
   date, setDate, startTime, setStartTime, hours, setHours,
 }: any) {
+  const { t, lang } = useI18n();
   const [cursor, setCursor] = useState(() => { const d = new Date(); d.setDate(1); return d; });
 
   const slots = useMemo(() => {
     if (!date) return [];
-    const day = date.getDay(); // 0 Sun ... 5 Fri ... 6 Sat
-    // Sat (6) to Thu (4): 9-22. Friday (5): 16-22. Only full hour slots.
+    const day = date.getDay();
     const isFri = day === 5;
     const startH = isFri ? 16 : 9;
     const endH = 22;
@@ -337,41 +558,39 @@ function Step1({
 
   return (
     <div className="space-y-8">
-      <Header eyebrow="Step 01" title="Pick your date & time" sub="اختر التاريخ والوقت المناسبين." />
+      <SectionHead eyebrowKey="s1_eyebrow" titleKey="s1_title" subKey="s1_sub" />
 
       <div className="grid gap-8 lg:grid-cols-2">
         <CalendarGrid cursor={cursor} setCursor={setCursor} selected={date} onSelect={(d: Date) => { setDate(d); setStartTime(null); }} />
 
         <div className="space-y-6">
           <div>
-            <Label icon={Clock}>Start time · وقت البدء</Label>
+            <Label icon={Clock}>{t("start_time")}</Label>
             {!date ? (
               <div className="mt-3 rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-                Select a date first to see available hourly slots.
+                {t("pick_date_first")}
               </div>
             ) : (
               <div className="mt-3 grid grid-cols-4 gap-2">
-                {slots.map((t) => (
+                {slots.map((tm) => (
                   <button
-                    key={t}
-                    onClick={() => setStartTime(t)}
+                    key={tm}
+                    onClick={() => setStartTime(tm)}
                     className={`rounded-xl py-2.5 text-sm font-medium ring-1 transition
-                      ${startTime === t ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/50"}`}
+                      ${startTime === tm ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/50"}`}
                   >
-                    {t}
+                    {tm}
                   </button>
                 ))}
               </div>
             )}
             {date && (
-              <p className="mt-3 text-xs text-muted-foreground">
-                Working hours: Sat–Thu 9:00–22:00 · Fri 16:00–22:00
-              </p>
+              <p className="mt-3 text-xs text-muted-foreground">{t("working_hours")}</p>
             )}
           </div>
 
           <div>
-            <Label icon={Clock}>Number of hours · عدد الساعات</Label>
+            <Label icon={Clock}>{t("hours_label")}</Label>
             <div className="mt-3 flex items-center gap-3">
               <button
                 onClick={() => setHours(Math.max(1, hours - 1))}
@@ -379,7 +598,7 @@ function Step1({
               >−</button>
               <div className="flex-1 rounded-2xl bg-muted/60 text-center py-3">
                 <div className="text-3xl font-bold text-primary">{hours}</div>
-                <div className="text-xs text-muted-foreground">hour{hours > 1 ? "s" : ""}</div>
+                <div className="text-xs text-muted-foreground">{hours > 1 ? t("hours_unit") : t("hour_unit")}</div>
               </div>
               <button
                 onClick={() => setHours(Math.min(maxHours, hours + 1))}
@@ -387,7 +606,7 @@ function Step1({
               >+</button>
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
-              Base space rate: <span className="font-bold text-foreground">{HOURLY_RATE} SAR/hr</span> · Total space: <span className="font-bold text-primary">{hours * HOURLY_RATE} SAR</span>
+              {t("base_rate")}: <span className="font-bold text-foreground">{HOURLY_RATE} {t("sar")}/{lang === "en" ? "hr" : "س"}</span> · {t("total_space")}: <span className="font-bold text-primary">{hours * HOURLY_RATE} {t("sar")}</span>
             </p>
           </div>
         </div>
@@ -397,6 +616,7 @@ function Step1({
 }
 
 function CalendarGrid({ cursor, setCursor, selected, onSelect }: any) {
+  const { lang } = useI18n();
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
@@ -407,21 +627,24 @@ function CalendarGrid({ cursor, setCursor, selected, onSelect }: any) {
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
 
-  const monthName = cursor.toLocaleString("en-US", { month: "long", year: "numeric" });
+  const monthName = cursor.toLocaleString(lang === "ar" ? "ar" : "en-US", { month: "long", year: "numeric" });
+  const dayLabels = lang === "ar"
+    ? ["أحد","إثن","ثلا","أرب","خمي","جمع","سبت"]
+    : ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
   return (
     <div className="rounded-2xl bg-muted/40 p-5 ring-1 ring-border">
       <div className="flex items-center justify-between">
         <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="grid h-9 w-9 place-items-center rounded-full hover:bg-background transition">
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
         </button>
         <div className="font-bold text-primary">{monthName}</div>
         <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="grid h-9 w-9 place-items-center rounded-full hover:bg-background transition">
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 rtl:rotate-180" />
         </button>
       </div>
       <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
-        {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => <div key={d}>{d}</div>)}
+        {dayLabels.map(d => <div key={d}>{d}</div>)}
       </div>
       <div className="mt-2 grid grid-cols-7 gap-1">
         {cells.map((d, i) => {
@@ -451,42 +674,40 @@ function CalendarGrid({ cursor, setCursor, selected, onSelect }: any) {
 
 /* -------------------- STEP 2 -------------------- */
 function Step2({ addons, setAddons, hours }: any) {
+  const { t } = useI18n();
   const anyAddon = Object.values(addons).some(Boolean);
   return (
     <div className="space-y-8">
-      <Header eyebrow="Step 02" title="Equipment & inclusions" sub="ما يُشمل مع المساحة وإضافاتك المميزة." />
+      <SectionHead eyebrowKey="s2_eyebrow" titleKey="s2_title" subKey="s2_sub" />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Included */}
         <div className="rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 p-6 ring-1 ring-primary/20">
           <div className="flex items-center gap-2 text-primary">
             <Check className="h-5 w-5" />
-            <h3 className="font-bold">Included with Space</h3>
+            <h3 className="font-bold">{t("included_title")}</h3>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">مشمول مجاناً مع كل حجز</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("included_sub")}</p>
           <ul className="mt-5 space-y-3">
             {INCLUDED.map((it) => (
-              <li key={it.en} className="flex items-center gap-3 rounded-xl bg-background/60 px-4 py-3 ring-1 ring-border">
+              <li key={it.key} className="flex items-center gap-3 rounded-xl bg-background/60 px-4 py-3 ring-1 ring-border">
                 <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
                   <it.icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium">{it.en}</div>
-                  <div className="text-xs text-muted-foreground">{it.ar}</div>
+                  <div className="text-sm font-medium">{t(it.key)}</div>
                 </div>
-                <span className="text-xs font-bold text-primary">FREE</span>
+                <span className="text-xs font-bold text-primary">{t("free")}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Premium add-ons */}
         <div>
           <div className="flex items-center gap-2 text-accent">
             <Sparkles className="h-5 w-5" />
-            <h3 className="font-bold">Premium Add-ons</h3>
+            <h3 className="font-bold">{t("addons_title")}</h3>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">إضافات احترافية بأسعار شفافة</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("addons_sub")}</p>
           <ul className="mt-5 space-y-3">
             {ADDONS.map((a) => {
               const checked = !!addons[a.id];
@@ -509,13 +730,12 @@ function Step2({ addons, setAddons, hours }: any) {
                       <a.icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium truncate">{a.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">{a.arName}</div>
+                      <div className="text-sm font-medium truncate">{t(a.key)}</div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-sm font-bold text-primary">+{a.price} SAR</div>
+                    <div className="text-end shrink-0">
+                      <div className="text-sm font-bold text-primary">+{a.price} {t("sar")}</div>
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {a.perHour ? `× ${hours}h = ${lineTotal}` : "flat"}
+                        {a.perHour ? `× ${hours}h = ${lineTotal}` : t("flat")}
                       </div>
                     </div>
                   </label>
@@ -526,7 +746,6 @@ function Step2({ addons, setAddons, hours }: any) {
         </div>
       </div>
 
-      {/* Insurance card */}
       <div className={`relative overflow-hidden rounded-2xl p-6 ring-1 transition
         ${anyAddon ? "bg-accent/10 ring-accent" : "bg-primary/5 ring-primary/20"}`}>
         <div className="flex items-center gap-4">
@@ -534,16 +753,14 @@ function Step2({ addons, setAddons, hours }: any) {
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-bold">Refundable Security Insurance · تأمين قابل للاسترداد</div>
+            <div className="text-sm font-bold">{t("insurance_title")}</div>
             <div className="text-xs text-muted-foreground mt-1">
-              {anyAddon
-                ? "Premium gear detected — insurance raised to 500 SAR. Fully refundable after inspection."
-                : "Base insurance of 200 SAR applies. Fully refundable after the session."}
+              {anyAddon ? t("insurance_high") : t("insurance_low")}
             </div>
           </div>
-          <div className="text-right shrink-0">
-            <div className="text-2xl font-bold text-primary">{anyAddon ? 500 : 200} SAR</div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">refundable</div>
+          <div className="text-end shrink-0">
+            <div className="text-2xl font-bold text-primary">{anyAddon ? 500 : 200} {t("sar")}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("refundable")}</div>
           </div>
         </div>
       </div>
@@ -553,25 +770,23 @@ function Step2({ addons, setAddons, hours }: any) {
 
 /* -------------------- STEP 3 -------------------- */
 function Step3({ policies, setPolicies }: any) {
+  const { t } = useI18n();
   return (
     <div className="space-y-8">
-      <Header eyebrow="Step 03" title="Policies & Security Deposit" sub="اطّلع على الشروط ووافق للمتابعة." />
+      <SectionHead eyebrowKey="s3_eyebrow" titleKey="s3_title" subKey="s3_sub" />
 
-      <div className="rounded-2xl border-l-4 border-accent bg-accent/10 p-5">
+      <div className="rounded-2xl border-s-4 border-accent bg-accent/10 p-5">
         <div className="flex items-start gap-3">
           <ShieldCheck className="mt-0.5 h-5 w-5 text-accent shrink-0" />
           <div>
-            <div className="font-bold text-foreground">Refundable Security Deposit</div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              A refundable deposit is collected to cover potential damages. It is returned in full within 3 business days following a clean post-session inspection.
-              <span className="block mt-1">يُسترد مبلغ التأمين بالكامل خلال 3 أيام عمل بعد التحقق من سلامة الأستوديو والمعدات.</span>
-            </p>
+            <div className="font-bold text-foreground">{t("deposit_title")}</div>
+            <p className="mt-1 text-sm text-muted-foreground">{t("deposit_body")}</p>
           </div>
         </div>
       </div>
 
       <div className="space-y-4">
-        {POLICIES.map((p, i) => {
+        {POLICY_KEYS.map((p, i) => {
           const checked = !!policies[i];
           return (
             <label key={i} className={`block cursor-pointer rounded-2xl p-5 ring-1 transition
@@ -584,12 +799,8 @@ function Step3({ policies, setPolicies }: any) {
                   {checked && <Check className="h-4 w-4" />}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-baseline gap-x-3">
-                    <h4 className="font-bold text-foreground">{p.title}</h4>
-                    <span className="text-xs text-muted-foreground">{p.arTitle}</span>
-                  </div>
-                  <p className="mt-2 text-sm text-muted-foreground">{p.body}</p>
-                  <p className="mt-1 text-sm text-muted-foreground/80">{p.arBody}</p>
+                  <h4 className="font-bold text-foreground">{t(p.t)}</h4>
+                  <p className="mt-2 text-sm text-muted-foreground">{t(p.b)}</p>
                 </div>
               </div>
             </label>
@@ -602,25 +813,26 @@ function Step3({ policies, setPolicies }: any) {
 
 /* -------------------- STEP 4 -------------------- */
 function Step4({ payment, setPayment, total }: any) {
+  const { t } = useI18n();
   const tabs = [
-    { id: "apple", label: "Apple Pay", icon: Smartphone },
-    { id: "tabby", label: "Tabby · 4 splits", icon: CreditCard },
-    { id: "tamara", label: "Tamara · 4 splits", icon: CreditCard },
-    { id: "bank", label: "Bank Transfer", icon: Banknote },
+    { id: "apple", key: "pay_apple" as const, icon: Smartphone },
+    { id: "tabby", key: "pay_tabby" as const, icon: CreditCard },
+    { id: "tamara", key: "pay_tamara" as const, icon: CreditCard },
+    { id: "bank", key: "pay_bank" as const, icon: Banknote },
   ] as const;
   return (
     <div className="space-y-8">
-      <Header eyebrow="Step 04" title="Checkout & Payment" sub="اختر طريقة الدفع المفضلة." />
+      <SectionHead eyebrowKey="s4_eyebrow" titleKey="s4_title" subKey="s4_sub" />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {tabs.map((t) => {
-          const active = payment === t.id;
+        {tabs.map((tb) => {
+          const active = payment === tb.id;
           return (
-            <button key={t.id} onClick={() => setPayment(t.id)}
+            <button key={tb.id} onClick={() => setPayment(tb.id)}
               className={`flex flex-col items-center gap-2 rounded-2xl px-4 py-5 ring-1 transition
                 ${active ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/40"}`}>
-              <t.icon className="h-6 w-6" />
-              <span className="text-xs font-bold text-center">{t.label}</span>
+              <tb.icon className="h-6 w-6" />
+              <span className="text-xs font-bold text-center">{t(tb.key)}</span>
             </button>
           );
         })}
@@ -637,36 +849,38 @@ function Step4({ payment, setPayment, total }: any) {
 }
 
 function ApplePayMock({ total }: { total: number }) {
+  const { t } = useI18n();
   return (
     <div className="mx-auto max-w-md text-center">
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-foreground text-background">
         <Smartphone className="h-8 w-8" />
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Authorize {total} SAR using Face ID on your device.</p>
+      <p className="mt-4 text-sm text-muted-foreground">{t("apple_hint").replace("{n}", String(total))}</p>
       <button className="mt-5 w-full rounded-xl bg-foreground text-background py-3 font-bold">
-        Pay with  Pay
+        {t("apple_btn")}
       </button>
     </div>
   );
 }
 
 function SplitMock({ total, brand, color }: { total: number; brand: string; color: string }) {
+  const { t } = useI18n();
   const split = Math.ceil(total / 4);
   return (
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">{brand} · split in 4</div>
-          <div className="text-2xl font-bold text-primary">{split} SAR <span className="text-sm font-medium text-muted-foreground">× 4 payments</span></div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">{brand} · {t("split_label")}</div>
+          <div className="text-2xl font-bold text-primary">{split} {t("sar")} <span className="text-sm font-medium text-muted-foreground">{t("split_payments")}</span></div>
         </div>
-        <div className="rounded-full px-3 py-1 text-xs font-bold text-white" style={{ background: color }}>0% interest</div>
+        <div className="rounded-full px-3 py-1 text-xs font-bold text-white" style={{ background: color }}>{t("no_interest")}</div>
       </div>
       <div className="mt-5 grid grid-cols-4 gap-2">
         {[0,1,2,3].map(i => (
           <div key={i} className="rounded-xl bg-background p-3 ring-1 ring-border text-center">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Payment {i+1}</div>
-            <div className="mt-1 font-bold text-primary">{split} SAR</div>
-            <div className="text-[10px] text-muted-foreground">{i === 0 ? "Today" : `+${i*30}d`}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("payment_n")} {i+1}</div>
+            <div className="mt-1 font-bold text-primary">{split} {t("sar")}</div>
+            <div className="text-[10px] text-muted-foreground">{i === 0 ? t("today") : `+${i*30}d`}</div>
           </div>
         ))}
       </div>
@@ -675,25 +889,26 @@ function SplitMock({ total, brand, color }: { total: number; brand: string; colo
 }
 
 function BankTransfer({ total }: { total: number }) {
+  const { t } = useI18n();
   const [file, setFile] = useState<string | null>(null);
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Info label="Bank Name" value="Al Rajhi Bank" />
-        <Info label="Account Name" value="NewArt Studio LLC" />
-        <Info label="IBAN" value="SA03 8000 0000 6080 1016 7519" mono />
-        <Info label="Amount Due" value={`${total} SAR`} highlight />
+        <Info label={t("bank_name")} value="Al Rajhi Bank" />
+        <Info label={t("account_name")} value="NewArt Studio LLC" />
+        <Info label={t("iban")} value="SA03 8000 0000 6080 1016 7519" mono />
+        <Info label={t("amount_due")} value={`${total} ${t("sar")}`} highlight />
       </div>
       <label className="flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed border-border bg-background p-5 hover:border-primary transition">
         <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
           <Upload className="h-5 w-5" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold">{file ? file : "Upload Receipt Image"}</div>
-          <div className="text-xs text-muted-foreground">PNG, JPG or PDF · up to 10MB</div>
+          <div className="text-sm font-bold">{file ? file : t("upload_receipt")}</div>
+          <div className="text-xs text-muted-foreground">{t("upload_hint")}</div>
         </div>
         <input type="file" className="sr-only" onChange={(e) => setFile(e.target.files?.[0]?.name ?? null)} />
-        <span className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">Choose file</span>
+        <span className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">{t("choose_file")}</span>
       </label>
     </div>
   );
@@ -710,59 +925,56 @@ function Info({ label, value, mono, highlight }: { label: string; value: string;
 
 /* -------------------- SUMMARY -------------------- */
 function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, insurance, total }: any) {
+  const { t, lang } = useI18n();
   return (
     <aside className="lg:sticky lg:top-6 h-fit rounded-3xl bg-ink text-ink-foreground shadow-elegant overflow-hidden">
       <div className="relative p-6 bg-grad-brand">
-        <div className="text-[10px] uppercase tracking-[0.25em] text-white/80">Live Estimate</div>
-        <div className="mt-1 text-3xl font-bold text-white">{total} <span className="text-base font-medium text-white/80">SAR</span></div>
-        <div className="mt-1 text-xs text-white/70">VAT inclusive · updated live</div>
+        <div className="text-[10px] uppercase tracking-[0.25em] text-white/80">{t("live_estimate")}</div>
+        <div className="mt-1 text-3xl font-bold text-white">{total} <span className="text-base font-medium text-white/80">{t("sar")}</span></div>
+        <div className="mt-1 text-xs text-white/70">{t("vat_inclusive")}</div>
       </div>
 
       <div className="p-6 space-y-5 text-sm">
-        <Row label="Date" value={date ? date.toLocaleDateString("en-GB", { weekday:"short", day:"numeric", month:"short", year:"numeric" }) : "—"} />
-        <Row label="Start" value={startTime ?? "—"} />
-        <Row label="Hours" value={`${hours} hr`} />
+        <Row label={t("date")} value={date ? date.toLocaleDateString(lang === "ar" ? "ar" : "en-GB", { weekday:"short", day:"numeric", month:"short", year:"numeric" }) : "—"} />
+        <Row label={t("start")} value={startTime ?? "—"} />
+        <Row label={t("hours_short")} value={`${hours} ${t("hr")}`} />
 
         <Divider />
 
-        <Row label={`Studio space (${hours}h × ${HOURLY_RATE})`} value={`${spacePrice} SAR`} bold />
+        <Row label={`${t("studio_space")} (${hours}h × ${HOURLY_RATE})`} value={`${spacePrice} ${t("sar")}`} bold />
 
         {addonItems.length > 0 && (
           <>
             <Divider />
             <div>
-              <div className="text-[10px] uppercase tracking-wider text-white/50 mb-2">Add-ons</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/50 mb-2">{t("addons_word")}</div>
               <ul className="space-y-2">
                 {addonItems.map((a: AddOn) => (
                   <li key={a.id} className="flex items-center justify-between gap-2">
-                    <span className="text-white/80 truncate">{a.name}</span>
-                    <span className="font-bold shrink-0">{a.perHour ? a.price * hours : a.price} SAR</span>
+                    <span className="text-white/80 truncate">{t(a.key)}</span>
+                    <span className="font-bold shrink-0">{a.perHour ? a.price * hours : a.price} {t("sar")}</span>
                   </li>
                 ))}
               </ul>
               <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-                <span className="text-white/80">Add-ons total</span>
-                <span className="font-bold">{addonsTotal} SAR</span>
+                <span className="text-white/80">{t("addons_total")}</span>
+                <span className="font-bold">{addonsTotal} {t("sar")}</span>
               </div>
             </div>
           </>
         )}
 
         <Divider />
-        <Row label="Refundable insurance" value={`${insurance} SAR`} sub={insurance === 500 ? "Premium gear tier" : "Standard"} />
+        <Row label={t("refundable_insurance")} value={`${insurance} ${t("sar")}`} sub={insurance === 500 ? t("premium_tier") : t("standard_tier")} />
 
         <Divider />
         <div className="flex items-end justify-between">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-white/50">Final total</div>
-            <div className="text-2xl font-bold text-white">{total} SAR</div>
+            <div className="text-[10px] uppercase tracking-wider text-white/50">{t("final_total")}</div>
+            <div className="text-2xl font-bold text-white">{total} {t("sar")}</div>
           </div>
           <div className="flex items-center gap-1 text-accent">
-            <Star className="h-4 w-4 fill-accent" />
-            <Star className="h-4 w-4 fill-accent" />
-            <Star className="h-4 w-4 fill-accent" />
-            <Star className="h-4 w-4 fill-accent" />
-            <Star className="h-4 w-4 fill-accent" />
+            {[0,1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-accent" />)}
           </div>
         </div>
       </div>
@@ -785,12 +997,13 @@ function Row({ label, value, bold, sub }: { label: string; value: string; bold?:
 function Divider() { return <div className="h-px bg-white/10" />; }
 
 /* -------------------- Helpers -------------------- */
-function Header({ eyebrow, title, sub }: { eyebrow: string; title: string; sub: string }) {
+function SectionHead({ eyebrowKey, titleKey, subKey }: { eyebrowKey: keyof typeof T; titleKey: keyof typeof T; subKey: keyof typeof T }) {
+  const { t } = useI18n();
   return (
     <div>
-      <div className="text-[11px] uppercase tracking-[0.25em] font-bold text-accent">{eyebrow}</div>
-      <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-primary">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{sub}</p>
+      <div className="text-[11px] uppercase tracking-[0.25em] font-bold text-accent">{t(eyebrowKey)}</div>
+      <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-primary">{t(titleKey)}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{t(subKey)}</p>
     </div>
   );
 }
@@ -806,35 +1019,34 @@ function Label({ icon: Icon, children }: { icon: any; children: React.ReactNode 
 
 /* -------------------- Success Modal -------------------- */
 function SuccessModal({ info, date, startTime, hours, total, onClose }: any) {
+  const { t, lang } = useI18n();
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/60 backdrop-blur p-4 animate-in fade-in">
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-card shadow-elegant ring-1 ring-border animate-in zoom-in-95">
-        <button onClick={onClose} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition">
+        <button onClick={onClose} className="absolute end-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition">
           <X className="h-4 w-4" />
         </button>
         <div className="bg-grad-brand p-8 text-center text-white">
           <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-white/20 backdrop-blur ring-4 ring-white/30">
             <PartyPopper className="h-10 w-10" />
           </div>
-          <h3 className="mt-5 text-3xl font-bold">Booking Confirmed!</h3>
-          <p className="mt-1 text-white/85 text-sm">تم تأكيد حجزك. نراك قريباً في الأستوديو.</p>
+          <h3 className="mt-5 text-3xl font-bold">{t("booking_confirmed")}</h3>
+          <p className="mt-1 text-white/85 text-sm">{t("see_you")}</p>
         </div>
         <div className="p-8 space-y-4">
           <div className="rounded-2xl bg-muted/40 p-5 text-center">
-            <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">Reference Number</div>
+            <div className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground">{t("ref_no")}</div>
             <div className="mt-1 text-2xl font-bold text-primary font-mono">{info.ref}</div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <Box label="Date" value={date ? date.toLocaleDateString("en-GB", { day:"numeric", month:"short" }) : "—"} />
-            <Box label="Start" value={startTime ?? "—"} />
-            <Box label="Duration" value={`${hours} hours`} />
-            <Box label="Total" value={`${total} SAR`} accent />
+            <Box label={t("date")} value={date ? date.toLocaleDateString(lang === "ar" ? "ar" : "en-GB", { day:"numeric", month:"short" }) : "—"} />
+            <Box label={t("start")} value={startTime ?? "—"} />
+            <Box label={t("duration")} value={`${hours} ${hours > 1 ? t("hours_unit") : t("hour_unit")}`} />
+            <Box label={t("total")} value={`${total} ${t("sar")}`} accent />
           </div>
-          <p className="text-center text-xs text-muted-foreground pt-2">
-            A confirmation has been sent to your email. Our concierge will contact you 24 hours before your session.
-          </p>
+          <p className="text-center text-xs text-muted-foreground pt-2">{t("confirmation_sent")}</p>
           <button onClick={onClose} className="w-full rounded-full bg-primary py-3 font-bold text-primary-foreground hover:bg-primary/90 transition">
-            Done
+            {t("done")}
           </button>
         </div>
       </div>
@@ -853,32 +1065,84 @@ function Box({ label, value, accent }: { label: string; value: string; accent?: 
 
 /* -------------------- Footer -------------------- */
 function Footer() {
+  const { t } = useI18n();
+  const phone = "+966530926745";
+  const phoneDigits = "966530926745";
   return (
     <footer className="bg-ink text-ink-foreground">
-      <div className="mx-auto max-w-7xl px-6 py-12 grid gap-8 md:grid-cols-3">
+      <div className="mx-auto max-w-7xl px-6 py-14 grid gap-10 md:grid-cols-3">
         <div>
           <div className="inline-block rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/15">
             <img src={logoAsset.url} alt="NewArt Studio" className="h-8 w-auto" />
           </div>
-          <p className="mt-4 text-sm text-white/60 max-w-xs">
-            Where productions feel premium and bookings feel effortless.
-          </p>
+          <p className="mt-4 text-sm text-white/60 max-w-xs">{t("ft_tag")}</p>
+          <div className="mt-5 flex items-center gap-3">
+            <a
+              href="https://www.instagram.com/newartksa/"
+              target="_blank" rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 ring-1 ring-white/15 hover:bg-accent hover:text-accent-foreground transition"
+            >
+              <Instagram className="h-5 w-5" />
+            </a>
+            <a
+              href={`https://api.whatsapp.com/send?phone=${phoneDigits}`}
+              target="_blank" rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              className="grid h-10 w-10 place-items-center rounded-full bg-white/10 ring-1 ring-white/15 hover:bg-accent hover:text-accent-foreground transition"
+            >
+              <MessageCircle className="h-5 w-5" />
+            </a>
+          </div>
         </div>
-        <div className="text-sm text-white/70 space-y-2">
-          <div className="text-white font-bold">Studios</div>
-          <div>Riyadh — Studio A</div>
-          <div>Jeddah — Studio B</div>
-          <div>Online consultations</div>
+
+        <div className="text-sm space-y-3">
+          <div className="text-white font-bold uppercase tracking-wider text-xs">{t("ft_contact")}</div>
+          <a href="mailto:info@newartksa.com" className="flex items-center gap-3 text-white/75 hover:text-white transition">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10"><Mail className="h-4 w-4" /></span>
+            <span className="min-w-0">
+              <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_email")}</div>
+              <div className="truncate">info@newartksa.com</div>
+            </span>
+          </a>
+          <a href={`tel:${phone}`} className="flex items-center gap-3 text-white/75 hover:text-white transition" dir="ltr">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10"><Phone className="h-4 w-4" /></span>
+            <span className="min-w-0">
+              <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_phone")}</div>
+              <div>{phone}</div>
+            </span>
+          </a>
+          <a
+            href={`https://api.whatsapp.com/send?phone=${phoneDigits}`}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-3 text-white/75 hover:text-white transition" dir="ltr"
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10"><MessageCircle className="h-4 w-4" /></span>
+            <span className="min-w-0">
+              <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_whatsapp")}</div>
+              <div>{phone}</div>
+            </span>
+          </a>
         </div>
-        <div className="text-sm text-white/70 space-y-2">
-          <div className="text-white font-bold">Concierge</div>
-          <div>hello@newart.studio</div>
-          <div>+966 11 000 0000</div>
-          <div>24 / 7 support</div>
+
+        <div className="text-sm space-y-3">
+          <div className="text-white font-bold uppercase tracking-wider text-xs">{t("ft_address")}</div>
+          <a
+            href="https://maps.app.goo.gl/VFGDzJsjJYUyuRbW8"
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-start gap-3 text-white/75 hover:text-white transition"
+          >
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 shrink-0"><MapPin className="h-4 w-4" /></span>
+            <span className="min-w-0">
+              <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_address")}</div>
+              <div>{t("ft_address_value")}</div>
+              <div className="text-xs text-white/50 mt-1">Open in Google Maps →</div>
+            </span>
+          </a>
         </div>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">
-        © 2026 NewArt Studio · جميع الحقوق محفوظة
+        {t("ft_rights")}
       </div>
     </footer>
   );
