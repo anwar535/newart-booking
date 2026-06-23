@@ -211,7 +211,7 @@ const POLICY_KEYS: { t: keyof typeof T; b: keyof typeof T }[] = [
 
 /* -------------------- Root -------------------- */
 function Index() {
-  const [lang, setLangState] = useState<Lang>("en");
+  const [lang, setLangState] = useState<Lang>("ar");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   useEffect(() => {
