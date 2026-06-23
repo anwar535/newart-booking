@@ -366,24 +366,34 @@ function Hero() {
 
           <div id="showreel" className="lg:col-span-5">
             <div className="group relative aspect-[4/5] overflow-hidden rounded-3xl ring-1 ring-white/15 shadow-elegant">
-              <div className="absolute inset-0 bg-grad-brand opacity-90" />
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.35),transparent_55%)]" />
-              <div className="absolute inset-0 flex flex-col justify-between p-6">
+              {/* Live video */}
+              <iframe
+                src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1"
+                allow="autoplay; encrypted-media; fullscreen"
+                allowFullScreen
+                className="absolute inset-0 h-full w-full border-0"
+                title="NewArt Studio showreel"
+              />
+              {/* Soft gradient overlay for legibility (non-blocking) */}
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/75 to-transparent" />
+
+              <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-6">
                 <div className="flex items-center justify-between text-white/90 text-xs uppercase tracking-widest">
-                  <span className="rounded-full bg-black/30 px-3 py-1 backdrop-blur">{t("live_tour")}</span>
-                  <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {t("studio_a")}</span>
+                  <span className="rounded-full bg-black/40 px-3 py-1 backdrop-blur ring-1 ring-white/20 inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                    {t("live_tour")}
+                  </span>
+                  <span className="flex items-center gap-1 rounded-full bg-black/40 px-3 py-1 backdrop-blur ring-1 ring-white/20">
+                    <MapPin className="h-3.5 w-3.5" /> {t("studio_a")}
+                  </span>
                 </div>
-                <button className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-white/15 backdrop-blur ring-1 ring-white/40 transition group-hover:scale-110">
-                  <div className="grid h-16 w-16 place-items-center rounded-full bg-white text-primary">
-                    <PlayCircle className="h-10 w-10" strokeWidth={1.5} />
-                  </div>
-                </button>
                 <div>
-                  <div className="text-white text-2xl font-bold">{t("showreel_title")}</div>
-                  <div className="mt-1 text-white/80 text-sm">{t("showreel_sub")}</div>
+                  <div className="text-white text-2xl font-bold drop-shadow-lg">{t("showreel_title")}</div>
+                  <div className="mt-1 text-white/85 text-sm drop-shadow">{t("showreel_sub")}</div>
                   <div className="mt-4 flex items-center gap-2">
                     {[0,1,2,3].map(i => (
-                      <div key={i} className={`h-1 flex-1 rounded-full ${i===1?"bg-white":"bg-white/30"}`} />
+                      <div key={i} className={`h-1 flex-1 rounded-full ${i===1?"bg-accent":"bg-white/30"}`} />
                     ))}
                   </div>
                 </div>
