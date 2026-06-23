@@ -290,9 +290,9 @@ function Hero() {
           title="NewArt Studio background"
         />
       </div>
-      <div className="absolute inset-0 bg-ink/70" />
-      <div className="absolute inset-0 bg-mesh opacity-50" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--ink)_75%)]" />
+      <div className="absolute inset-0 bg-ink/55" />
+      <div className="absolute inset-0 bg-mesh opacity-40" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--ink)_85%)]" />
 
       <div className="relative mx-auto max-w-7xl px-6 pt-6 pb-24 sm:pb-32">
         <nav className="flex items-center justify-between">
