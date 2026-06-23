@@ -284,8 +284,9 @@ function Hero() {
       {/* Background Video */}
       <div className="absolute inset-0 overflow-hidden">
         <iframe
-          src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview"
-          allow="autoplay"
+          src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1"
+          allow="autoplay; encrypted-media; fullscreen"
+          allowFullScreen
           className="absolute left-1/2 top-1/2 h-[140%] w-[180%] -translate-x-1/2 -translate-y-1/2 border-0 pointer-events-none"
           title="NewArt Studio background"
         />
