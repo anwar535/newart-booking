@@ -7,6 +7,8 @@ import {
   PlayCircle, MapPin, Star, Sun, Moon, Languages, Mail, Phone, MessageCircle, Instagram,
 } from "lucide-react";
 import logoAsset from "@/assets/newart-logo.png.asset.json";
+import { useServerFn } from "@tanstack/react-start";
+import { validatePromo } from "@/lib/promo.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
