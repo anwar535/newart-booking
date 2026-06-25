@@ -1160,8 +1160,9 @@ function Info({ label, value, mono, highlight }: { label: string; value: string;
 }
 
 /* -------------------- SUMMARY -------------------- */
-function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, insurance, total }: any) {
+function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, insurance, total, storeItems = [], removeStoreItem, discount = 0, promoApplied = false, longSession = false }: any) {
   const { t, lang } = useI18n();
+  const showStrike1h = hours === 1;
   return (
     <aside className="lg:sticky lg:top-6 h-fit rounded-3xl bg-ink text-ink-foreground shadow-elegant overflow-hidden">
       <div className="relative p-6 bg-grad-brand">
@@ -1175,9 +1176,29 @@ function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, 
         <Row label={t("start")} value={startTime ?? "—"} />
         <Row label={t("hours_short")} value={`${hours} ${t("hr")}`} />
 
+        {/* Compensation badges in summary */}
+        <div className="flex flex-col gap-2">
+          <div className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-[11px] text-white/80">
+            <Clock className="h-3.5 w-3.5 text-accent" /> {t("prayer_badge")}
+          </div>
+          {longSession && (
+            <div className="inline-flex items-center gap-2 rounded-lg bg-accent/20 px-3 py-2 text-[11px] text-white font-bold">
+              <Sparkles className="h-3.5 w-3.5" /> {t("compensation_badge")}
+            </div>
+          )}
+        </div>
+
         <Divider />
 
-        <Row label={`${t("studio_space")} (${hours}h × ${HOURLY_RATE})`} value={`${spacePrice} ${t("sar")}`} bold />
+        <div className="flex items-start justify-between gap-3">
+          <div className="text-white/80">{t("space_total_label")} ({hours}h)</div>
+          <div className="text-end">
+            {showStrike1h && (
+              <div className="text-[11px] text-white/40 line-through">{ORIGINAL_1H_PRICE} {t("sar")}</div>
+            )}
+            <div className="font-bold text-white">{spacePrice} {t("sar")}</div>
+          </div>
+        </div>
 
         {addonItems.length > 0 && (
           <>
@@ -1200,8 +1221,42 @@ function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, 
           </>
         )}
 
+        {storeItems.length > 0 && (
+          <>
+            <Divider />
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-white/50 mb-2">{t("store_eyebrow")}</div>
+              <ul className="space-y-2">
+                {storeItems.map((s: any) => (
+                  <li key={s.id} className="flex items-center justify-between gap-2">
+                    <span className="text-white/80 truncate">{s.name}</span>
+                    <span className="flex items-center gap-2 shrink-0">
+                      <span className="font-bold">{s.price} {t("sar")}</span>
+                      {removeStoreItem && (
+                        <button onClick={() => removeStoreItem(s.id)} className="text-white/40 hover:text-destructive transition" aria-label="remove">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
         <Divider />
         <Row label={t("refundable_insurance")} value={`${insurance} ${t("sar")}`} sub={insurance === 500 ? t("premium_tier") : t("standard_tier")} />
+
+        {promoApplied && discount > 0 && (
+          <>
+            <Divider />
+            <div className="flex items-center justify-between text-accent font-bold">
+              <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4" /> {t("discount")} (NEWART10)</span>
+              <span>−{discount} {t("sar")}</span>
+            </div>
+          </>
+        )}
 
         <Divider />
         <div className="flex items-end justify-between">
@@ -1217,6 +1272,7 @@ function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, 
     </aside>
   );
 }
+
 
 function Row({ label, value, bold, sub }: { label: string; value: string; bold?: boolean; sub?: string }) {
   return (
