@@ -20,7 +20,30 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const HOURLY_RATE = 150;
+/* -------------------- Pricing matrix -------------------- */
+const HOUR_PRICING: Record<number, number> = {
+  1: 200, 2: 350, 3: 500, 4: 650, 5: 750, 6: 850, 7: 900, 8: 1000,
+};
+const ORIGINAL_1H_PRICE = 290;
+const MAX_HOURS = 8;
+function getSpacePrice(hours: number) {
+  const clamped = Math.max(1, Math.min(MAX_HOURS, hours));
+  return HOUR_PRICING[clamped] ?? HOUR_PRICING[MAX_HOURS];
+}
+
+/* Mock reserved slots — keyed by YYYY-MM-DD → array of "HH:00" */
+function mockReservedSlots(date: Date): string[] {
+  // Deterministic pseudo-random based on date
+  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  const pool = ["10:00","12:00","14:00","16:00","18:00","20:00","09:00","11:00","15:00","19:00"];
+  const taken: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    taken.push(pool[(seed + i * 7) % pool.length]);
+  }
+  return Array.from(new Set(taken));
+}
+
+const PROMO_CODE = "NEWART10";
 
 /* -------------------- i18n -------------------- */
 type Lang = "en" | "ar";
