@@ -1015,7 +1015,7 @@ function Step3({ policies, setPolicies }: any) {
 }
 
 /* -------------------- STEP 4 -------------------- */
-function Step4({ payment, setPayment, total }: any) {
+function Step4({ payment, setPayment, total, promoInput, setPromoInput, promoApplied, promoError, applyPromo, removePromo }: any) {
   const { t } = useI18n();
   const tabs = [
     { id: "apple", key: "pay_apple" as const, icon: Smartphone },
@@ -1026,6 +1026,38 @@ function Step4({ payment, setPayment, total }: any) {
   return (
     <div className="space-y-8">
       <SectionHead eyebrowKey="s4_eyebrow" titleKey="s4_title" subKey="s4_sub" />
+
+      {/* Promo code */}
+      <div className="rounded-2xl bg-muted/40 ring-1 ring-border p-5">
+        <Label icon={Sparkles}>{t("coupon_title")}</Label>
+        <div className="mt-3 flex gap-2">
+          <input
+            type="text"
+            value={promoInput}
+            onChange={(e) => setPromoInput(e.target.value)}
+            placeholder={t("coupon_placeholder")}
+            disabled={promoApplied}
+            className="flex-1 rounded-xl bg-background ring-1 ring-border px-4 py-3 text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-primary disabled:opacity-60"
+          />
+          {promoApplied ? (
+            <button onClick={removePromo} className="rounded-xl bg-muted ring-1 ring-border px-5 text-sm font-bold text-foreground hover:bg-destructive/10 hover:text-destructive transition">
+              {t("coupon_remove")}
+            </button>
+          ) : (
+            <button onClick={applyPromo} className="rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition">
+              {t("coupon_apply")}
+            </button>
+          )}
+        </div>
+        {promoApplied && (
+          <p className="mt-3 text-xs font-bold text-primary inline-flex items-center gap-2">
+            <Check className="h-4 w-4" /> {t("coupon_applied")}
+          </p>
+        )}
+        {promoError && !promoApplied && (
+          <p className="mt-3 text-xs font-bold text-destructive">{t("coupon_invalid")}</p>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tabs.map((tb) => {
@@ -1050,6 +1082,7 @@ function Step4({ payment, setPayment, total }: any) {
     </div>
   );
 }
+
 
 function ApplePayMock({ total }: { total: number }) {
   const { t } = useI18n();
