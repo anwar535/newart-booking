@@ -20,7 +20,30 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const HOURLY_RATE = 150;
+/* -------------------- Pricing matrix -------------------- */
+const HOUR_PRICING: Record<number, number> = {
+  1: 200, 2: 350, 3: 500, 4: 650, 5: 750, 6: 850, 7: 900, 8: 1000,
+};
+const ORIGINAL_1H_PRICE = 290;
+const MAX_HOURS = 8;
+function getSpacePrice(hours: number) {
+  const clamped = Math.max(1, Math.min(MAX_HOURS, hours));
+  return HOUR_PRICING[clamped] ?? HOUR_PRICING[MAX_HOURS];
+}
+
+/* Mock reserved slots — keyed by YYYY-MM-DD → array of "HH:00" */
+function mockReservedSlots(date: Date): string[] {
+  // Deterministic pseudo-random based on date
+  const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+  const pool = ["10:00","12:00","14:00","16:00","18:00","20:00","09:00","11:00","15:00","19:00"];
+  const taken: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    taken.push(pool[(seed + i * 7) % pool.length]);
+  }
+  return Array.from(new Set(taken));
+}
+
+const PROMO_CODE = "NEWART10";
 
 /* -------------------- i18n -------------------- */
 type Lang = "en" | "ar";
@@ -167,6 +190,56 @@ const T: Dict = {
   confirmation_sent: { en: "A confirmation has been sent to your email. Our concierge will contact you 24 hours before your session.", ar: "تم إرسال التأكيد إلى بريدك الإلكتروني. سيتواصل معك فريقنا قبل 24 ساعة من الجلسة." },
   done: { en: "Done", ar: "تم" },
 
+  // New: pricing / compensation / availability
+  prayer_badge: { en: "Prayer time allowance: 10 minutes free of charge added to your session.", ar: "وقت صلاة: 10 دقائق مجاناً مضافة لجلستك." },
+  compensation_badge: { en: "30 minutes free extension included with long sessions.", ar: "30 دقيقة تعويض مجاني مع الجلسات الطويلة." },
+  reserved: { en: "Reserved", ar: "محجوز" },
+  unavailable: { en: "Unavailable", ar: "غير متاح" },
+  lead_time_note: { en: "Same-day bookings require at least 2 hours lead time.", ar: "الحجز في نفس اليوم يتطلب ساعتين كحد أدنى قبل البدء." },
+  no_slots_today: { en: "No more slots available today. Please pick another date.", ar: "لا توجد فترات متاحة اليوم. اختر تاريخاً آخر." },
+  space_total_label: { en: "Studio space", ar: "مساحة الاستوديو" },
+  saved: { en: "You save", ar: "وفّرت" },
+  discount: { en: "Promo discount", ar: "خصم الكوبون" },
+
+  // Coupon
+  coupon_title: { en: "Promo code", ar: "كود الخصم" },
+  coupon_placeholder: { en: "Enter promo code", ar: "أدخل كود الخصم" },
+  coupon_apply: { en: "Apply", ar: "تطبيق" },
+  coupon_applied: { en: "Promo NEWART10 applied — 10% off.", ar: "تم تطبيق كود NEWART10 — خصم 10%." },
+  coupon_invalid: { en: "Invalid promo code.", ar: "كود الخصم غير صالح." },
+  coupon_remove: { en: "Remove", ar: "إزالة" },
+
+  // Portfolio
+  pf_eyebrow: { en: "Portfolio", ar: "أعمالنا" },
+  pf_title: { en: "Recent productions & sets", ar: "نماذج صور للعرض" },
+  pf_sub: { en: "A curated selection of recent shoots, sets and locations.", ar: "مجموعة مختارة من أحدث جلساتنا ومواقعنا." },
+
+  // Store
+  store_eyebrow: { en: "Studio Services", ar: "خدمات الاستوديو" },
+  store_title: { en: "Ready-made session packages", ar: "باقات جلسات جاهزة" },
+  store_sub: { en: "Purchase complete sessions tailored to your project.", ar: "اشترِ جلسات متكاملة مصممة لمشروعك." },
+  store_personal_t: { en: "Personal Sessions", ar: "جلسات شخصية" },
+  store_personal_d: { en: "Polished personal portraits with styling guidance.", ar: "جلسات بورتريه شخصية احترافية مع توجيه التنسيق." },
+  store_product_t: { en: "Product Sessions", ar: "جلسات منتجات" },
+  store_product_d: { en: "E-commerce-ready product photography with controlled lighting.", ar: "تصوير منتجات جاهز للتجارة الإلكترونية بإضاءة مضبوطة." },
+  store_podcast_t: { en: "Podcast Sessions", ar: "بودكاست" },
+  store_podcast_d: { en: "Full podcast set-up with multi-cam and audio engineering.", ar: "تجهيز بودكاست متكامل بكاميرات متعددة وهندسة صوت." },
+  store_f_pers_1: { en: "2-hour styled portrait session", ar: "جلسة بورتريه منسقة لساعتين" },
+  store_f_pers_2: { en: "Pro photographer & lighting", ar: "مصور محترف وإضاءة" },
+  store_f_pers_3: { en: "20 retouched final images", ar: "20 صورة نهائية معدّلة" },
+  store_f_prod_1: { en: "Tabletop & cyclorama options", ar: "خيارات تصوير منتجات وسايكلوراما" },
+  store_f_prod_2: { en: "Background & prop styling", ar: "تنسيق الخلفيات والإكسسوارات" },
+  store_f_prod_3: { en: "30 edited product shots", ar: "30 صورة منتج معدّلة" },
+  store_f_pod_1: { en: "3-cam podcast recording", ar: "تسجيل بودكاست بثلاث كاميرات" },
+  store_f_pod_2: { en: "Lapel mics & mixer", ar: "ميكروفونات لاسلكية ومكسر صوت" },
+  store_f_pod_3: { en: "Edited episode delivery", ar: "تسليم حلقة معدّلة" },
+  store_from: { en: "From", ar: "ابتداءً من" },
+  store_add: { en: "Add to Booking", ar: "أضف إلى الحجز" },
+  store_added: { en: "Added ✓", ar: "تمت الإضافة ✓" },
+
+  // FAB
+  fab_label: { en: "Book Now", ar: "احجز الآن" },
+
   // Footer
   ft_tag: { en: "Where productions feel premium and bookings feel effortless.", ar: "حيث يكون الإنتاج فاخراً والحجز سهلاً." },
   ft_contact: { en: "Contact", ar: "تواصل" },
@@ -244,12 +317,16 @@ function Index() {
       <div className="min-h-screen bg-background text-foreground" dir={i18n.dir}>
         <FloatingControls theme={theme} setTheme={setTheme} />
         <Hero />
+        <Portfolio />
         <Booking />
+        <StoreServices />
         <Footer />
+        <BookingFAB />
       </div>
     </I18nCtx.Provider>
   );
 }
+
 
 /* -------------------- Floating Controls -------------------- */
 function FloatingControls({ theme, setTheme }: { theme: "dark" | "light"; setTheme: (t: "dark" | "light") => void }) {
@@ -306,12 +383,8 @@ function Hero() {
             <a href="#showreel" className="hover:text-white transition">{t("nav_showreel")}</a>
             <a href="#booking" className="hover:text-white transition">{t("nav_book")}</a>
           </div>
-          <a
-            href="#booking"
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground shadow-glow transition hover:scale-105"
-          >
-            {t("nav_reserve")} <ChevronRight className="h-4 w-4 rtl:rotate-180" />
-          </a>
+          <div aria-hidden className="h-8" />
+
         </nav>
 
         <div className="mt-20 grid items-end gap-12 lg:grid-cols-12">
@@ -417,12 +490,42 @@ function Booking() {
   const [policies, setPolicies] = useState<Record<number, boolean>>({});
   const [payment, setPayment] = useState<"apple" | "tabby" | "tamara" | "bank">("apple");
   const [confirmed, setConfirmed] = useState<null | { ref: string }>(null);
+  const [storeItems, setStoreItems] = useState<{ id: string; name: string; price: number }[]>([]);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState(false);
 
-  const spacePrice = hours * HOURLY_RATE;
+  // Listen for store add events
+  useEffect(() => {
+    function onAdd(e: Event) {
+      const det = (e as CustomEvent).detail as { id: string; name: string; price: number };
+      setStoreItems((prev) => prev.find((p) => p.id === det.id) ? prev : [...prev, det]);
+      document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
+    }
+    window.addEventListener("na:add-store", onAdd as EventListener);
+    return () => window.removeEventListener("na:add-store", onAdd as EventListener);
+  }, []);
+
+  const spacePrice = getSpacePrice(hours);
   const addonItems = ADDONS.filter(a => addons[a.id]);
   const addonsTotal = addonItems.reduce((sum, a) => sum + (a.perHour ? a.price * hours : a.price), 0);
   const insurance = addonItems.length > 0 ? 500 : 200;
-  const total = spacePrice + addonsTotal + insurance;
+  const storeTotal = storeItems.reduce((s, x) => s + x.price, 0);
+  const subtotal = spacePrice + addonsTotal + insurance + storeTotal;
+  const discount = promoApplied ? Math.round(subtotal * 0.10) : 0;
+  const total = subtotal - discount;
+  const longSession = hours >= 7;
+
+  function applyPromo() {
+    if (promoInput.trim().toUpperCase() === PROMO_CODE) {
+      setPromoApplied(true); setPromoError(false);
+    } else {
+      setPromoApplied(false); setPromoError(true);
+    }
+  }
+  function removePromo() {
+    setPromoApplied(false); setPromoError(false); setPromoInput("");
+  }
 
   const canNext = useMemo(() => {
     if (step === 1) return !!date && !!startTime && hours > 0;
@@ -445,6 +548,18 @@ function Booking() {
 
       <Stepper step={step} setStep={setStep} />
 
+      {/* Compensation badges */}
+      <div className="mt-6 flex flex-wrap gap-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-xs sm:text-sm font-bold ring-1 ring-primary/20">
+          <Clock className="h-4 w-4" /> {t("prayer_badge")}
+        </div>
+        {longSession && (
+          <div className="inline-flex items-center gap-2 rounded-full bg-accent/15 text-accent px-4 py-2 text-xs sm:text-sm font-bold ring-1 ring-accent/30">
+            <Sparkles className="h-4 w-4" /> {t("compensation_badge")}
+          </div>
+        )}
+      </div>
+
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_380px]">
         <div className="rounded-3xl bg-card shadow-soft ring-1 ring-border overflow-hidden">
           <div className="p-6 sm:p-10">
@@ -457,7 +572,14 @@ function Booking() {
             )}
             {step === 2 && <Step2 addons={addons} setAddons={setAddons} hours={hours} />}
             {step === 3 && <Step3 policies={policies} setPolicies={setPolicies} />}
-            {step === 4 && <Step4 payment={payment} setPayment={setPayment} total={total} />}
+            {step === 4 && (
+              <Step4
+                payment={payment} setPayment={setPayment} total={total}
+                promoInput={promoInput} setPromoInput={setPromoInput}
+                promoApplied={promoApplied} promoError={promoError}
+                applyPromo={applyPromo} removePromo={removePromo}
+              />
+            )}
           </div>
 
           <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 sm:px-10 py-5">
@@ -491,6 +613,9 @@ function Booking() {
           date={date} startTime={startTime} hours={hours}
           spacePrice={spacePrice} addonItems={addonItems} addonsTotal={addonsTotal}
           insurance={insurance} total={total}
+          storeItems={storeItems} removeStoreItem={(id: string) => setStoreItems((p) => p.filter(x => x.id !== id))}
+          discount={discount} promoApplied={promoApplied}
+          longSession={longSession}
         />
       </div>
 
@@ -504,6 +629,7 @@ function Booking() {
     </section>
   );
 }
+
 
 /* -------------------- Stepper -------------------- */
 function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void }) {
@@ -547,8 +673,14 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
 function Step1({
   date, setDate, startTime, setStartTime, hours, setHours,
 }: any) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const [cursor, setCursor] = useState(() => { const d = new Date(); d.setDate(1); return d; });
+
+  const now = new Date();
+  const isToday = !!date && date.toDateString() === now.toDateString();
+  const minStartHourToday = now.getHours() + 2 + (now.getMinutes() > 0 ? 1 : 0);
+
+  const reserved = useMemo(() => date ? mockReservedSlots(date) : [], [date]);
 
   const slots = useMemo(() => {
     if (!date) return [];
@@ -556,16 +688,26 @@ function Step1({
     const isFri = day === 5;
     const startH = isFri ? 16 : 9;
     const endH = 22;
-    const arr: string[] = [];
-    for (let h = startH; h < endH; h++) arr.push(`${String(h).padStart(2, "0")}:00`);
+    const arr: { time: string; reserved: boolean; tooLate: boolean }[] = [];
+    for (let h = startH; h < endH; h++) {
+      const time = `${String(h).padStart(2, "0")}:00`;
+      const isReserved = reserved.includes(time);
+      const tooLate = isToday && h < minStartHourToday;
+      arr.push({ time, reserved: isReserved, tooLate });
+    }
     return arr;
-  }, [date]);
+  }, [date, reserved, isToday, minStartHourToday]);
+
+  const allBlocked = slots.length > 0 && slots.every(s => s.reserved || s.tooLate);
 
   const maxHours = useMemo(() => {
-    if (!date || !startTime) return 12;
+    if (!date || !startTime) return MAX_HOURS;
     const sh = parseInt(startTime.split(":")[0], 10);
-    return 22 - sh;
+    return Math.min(MAX_HOURS, 22 - sh);
   }, [date, startTime]);
+
+  const currentSpace = getSpacePrice(hours);
+  const showStrike = hours === 1;
 
   return (
     <div className="space-y-8">
@@ -582,18 +724,42 @@ function Step1({
                 {t("pick_date_first")}
               </div>
             ) : (
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {slots.map((tm) => (
-                  <button
-                    key={tm}
-                    onClick={() => setStartTime(tm)}
-                    className={`rounded-xl py-2.5 text-sm font-medium ring-1 transition
-                      ${startTime === tm ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/50"}`}
-                  >
-                    {tm}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  {slots.map((s) => {
+                    const disabled = s.reserved || s.tooLate;
+                    const isSel = startTime === s.time;
+                    return (
+                      <button
+                        key={s.time}
+                        onClick={() => !disabled && setStartTime(s.time)}
+                        disabled={disabled}
+                        title={s.reserved ? t("reserved") : s.tooLate ? t("lead_time_note") : ""}
+                        className={`relative rounded-xl py-2.5 text-sm font-medium ring-1 transition overflow-hidden
+                          ${isSel ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                            : s.reserved ? "cursor-not-allowed bg-destructive/10 text-destructive/70 ring-destructive/30"
+                            : s.tooLate ? "cursor-not-allowed bg-muted text-muted-foreground/50 ring-border line-through"
+                            : "bg-background ring-border hover:ring-primary/50"}`}
+                      >
+                        {s.reserved && (
+                          <span aria-hidden className="pointer-events-none absolute inset-0 opacity-40"
+                            style={{ backgroundImage: "repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 8px)" }} />
+                        )}
+                        <span className="relative">{s.time}</span>
+                        {s.reserved && (
+                          <span className="relative block text-[9px] uppercase tracking-wider mt-0.5">{t("reserved")}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {isToday && (
+                  <p className="mt-3 text-xs text-accent font-bold">⏱ {t("lead_time_note")}</p>
+                )}
+                {allBlocked && (
+                  <p className="mt-2 text-xs text-destructive font-bold">{t("no_slots_today")}</p>
+                )}
+              </>
             )}
             {date && (
               <p className="mt-3 text-xs text-muted-foreground">{t("working_hours")}</p>
@@ -616,15 +782,45 @@ function Step1({
                 className="grid h-12 w-12 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition"
               >+</button>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {t("base_rate")}: <span className="font-bold text-foreground">{HOURLY_RATE} {t("sar")}/{lang === "en" ? "hr" : "س"}</span> · {t("total_space")}: <span className="font-bold text-primary">{hours * HOURLY_RATE} {t("sar")}</span>
-            </p>
+            <div className="mt-3 flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">{t("total_space")}</span>
+              <span className="flex items-center gap-2">
+                {showStrike && (
+                  <span className="text-muted-foreground line-through">{ORIGINAL_1H_PRICE} {t("sar")}</span>
+                )}
+                <span className="font-bold text-primary text-base">{currentSpace} {t("sar")}</span>
+                {showStrike && (
+                  <span className="rounded-full bg-accent/15 text-accent px-2 py-0.5 font-bold">-{ORIGINAL_1H_PRICE - currentSpace} {t("sar")}</span>
+                )}
+              </span>
+            </div>
+
+            {/* Pricing matrix preview */}
+            <div className="mt-4 grid grid-cols-4 gap-1.5">
+              {Object.entries(HOUR_PRICING).map(([h, p]) => {
+                const active = parseInt(h) === hours;
+                return (
+                  <button
+                    key={h}
+                    onClick={() => setHours(parseInt(h))}
+                    className={`rounded-lg px-2 py-2 text-center ring-1 transition ${
+                      active ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                        : "bg-background ring-border hover:ring-primary/50"
+                    }`}
+                  >
+                    <div className="text-[10px] font-bold opacity-80">{h}h</div>
+                    <div className="text-xs font-bold">{p}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 function CalendarGrid({ cursor, setCursor, selected, onSelect }: any) {
   const { lang } = useI18n();
@@ -823,7 +1019,7 @@ function Step3({ policies, setPolicies }: any) {
 }
 
 /* -------------------- STEP 4 -------------------- */
-function Step4({ payment, setPayment, total }: any) {
+function Step4({ payment, setPayment, total, promoInput, setPromoInput, promoApplied, promoError, applyPromo, removePromo }: any) {
   const { t } = useI18n();
   const tabs = [
     { id: "apple", key: "pay_apple" as const, icon: Smartphone },
@@ -834,6 +1030,38 @@ function Step4({ payment, setPayment, total }: any) {
   return (
     <div className="space-y-8">
       <SectionHead eyebrowKey="s4_eyebrow" titleKey="s4_title" subKey="s4_sub" />
+
+      {/* Promo code */}
+      <div className="rounded-2xl bg-muted/40 ring-1 ring-border p-5">
+        <Label icon={Sparkles}>{t("coupon_title")}</Label>
+        <div className="mt-3 flex gap-2">
+          <input
+            type="text"
+            value={promoInput}
+            onChange={(e) => setPromoInput(e.target.value)}
+            placeholder={t("coupon_placeholder")}
+            disabled={promoApplied}
+            className="flex-1 rounded-xl bg-background ring-1 ring-border px-4 py-3 text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-primary disabled:opacity-60"
+          />
+          {promoApplied ? (
+            <button onClick={removePromo} className="rounded-xl bg-muted ring-1 ring-border px-5 text-sm font-bold text-foreground hover:bg-destructive/10 hover:text-destructive transition">
+              {t("coupon_remove")}
+            </button>
+          ) : (
+            <button onClick={applyPromo} className="rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition">
+              {t("coupon_apply")}
+            </button>
+          )}
+        </div>
+        {promoApplied && (
+          <p className="mt-3 text-xs font-bold text-primary inline-flex items-center gap-2">
+            <Check className="h-4 w-4" /> {t("coupon_applied")}
+          </p>
+        )}
+        {promoError && !promoApplied && (
+          <p className="mt-3 text-xs font-bold text-destructive">{t("coupon_invalid")}</p>
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {tabs.map((tb) => {
@@ -858,6 +1086,7 @@ function Step4({ payment, setPayment, total }: any) {
     </div>
   );
 }
+
 
 function ApplePayMock({ total }: { total: number }) {
   const { t } = useI18n();
@@ -935,8 +1164,9 @@ function Info({ label, value, mono, highlight }: { label: string; value: string;
 }
 
 /* -------------------- SUMMARY -------------------- */
-function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, insurance, total }: any) {
+function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, insurance, total, storeItems = [], removeStoreItem, discount = 0, promoApplied = false, longSession = false }: any) {
   const { t, lang } = useI18n();
+  const showStrike1h = hours === 1;
   return (
     <aside className="lg:sticky lg:top-6 h-fit rounded-3xl bg-ink text-ink-foreground shadow-elegant overflow-hidden">
       <div className="relative p-6 bg-grad-brand">
@@ -950,9 +1180,29 @@ function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, 
         <Row label={t("start")} value={startTime ?? "—"} />
         <Row label={t("hours_short")} value={`${hours} ${t("hr")}`} />
 
+        {/* Compensation badges in summary */}
+        <div className="flex flex-col gap-2">
+          <div className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-[11px] text-white/80">
+            <Clock className="h-3.5 w-3.5 text-accent" /> {t("prayer_badge")}
+          </div>
+          {longSession && (
+            <div className="inline-flex items-center gap-2 rounded-lg bg-accent/20 px-3 py-2 text-[11px] text-white font-bold">
+              <Sparkles className="h-3.5 w-3.5" /> {t("compensation_badge")}
+            </div>
+          )}
+        </div>
+
         <Divider />
 
-        <Row label={`${t("studio_space")} (${hours}h × ${HOURLY_RATE})`} value={`${spacePrice} ${t("sar")}`} bold />
+        <div className="flex items-start justify-between gap-3">
+          <div className="text-white/80">{t("space_total_label")} ({hours}h)</div>
+          <div className="text-end">
+            {showStrike1h && (
+              <div className="text-[11px] text-white/40 line-through">{ORIGINAL_1H_PRICE} {t("sar")}</div>
+            )}
+            <div className="font-bold text-white">{spacePrice} {t("sar")}</div>
+          </div>
+        </div>
 
         {addonItems.length > 0 && (
           <>
@@ -975,8 +1225,42 @@ function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, 
           </>
         )}
 
+        {storeItems.length > 0 && (
+          <>
+            <Divider />
+            <div>
+              <div className="text-[10px] uppercase tracking-wider text-white/50 mb-2">{t("store_eyebrow")}</div>
+              <ul className="space-y-2">
+                {storeItems.map((s: any) => (
+                  <li key={s.id} className="flex items-center justify-between gap-2">
+                    <span className="text-white/80 truncate">{s.name}</span>
+                    <span className="flex items-center gap-2 shrink-0">
+                      <span className="font-bold">{s.price} {t("sar")}</span>
+                      {removeStoreItem && (
+                        <button onClick={() => removeStoreItem(s.id)} className="text-white/40 hover:text-destructive transition" aria-label="remove">
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
         <Divider />
         <Row label={t("refundable_insurance")} value={`${insurance} ${t("sar")}`} sub={insurance === 500 ? t("premium_tier") : t("standard_tier")} />
+
+        {promoApplied && discount > 0 && (
+          <>
+            <Divider />
+            <div className="flex items-center justify-between text-accent font-bold">
+              <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4" /> {t("discount")} (NEWART10)</span>
+              <span>−{discount} {t("sar")}</span>
+            </div>
+          </>
+        )}
 
         <Divider />
         <div className="flex items-end justify-between">
@@ -992,6 +1276,7 @@ function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, 
     </aside>
   );
 }
+
 
 function Row({ label, value, bold, sub }: { label: string; value: string; bold?: boolean; sub?: string }) {
   return (
@@ -1158,3 +1443,148 @@ function Footer() {
     </footer>
   );
 }
+
+/* -------------------- Portfolio (masonry placeholders) -------------------- */
+function Portfolio() {
+  const { t } = useI18n();
+  // Heights tuned for an organic masonry feel
+  const tiles = [
+    { h: "h-64", grad: "from-primary via-primary/70 to-accent/60", icon: Camera, label: "Editorial" },
+    { h: "h-48", grad: "from-accent via-accent/70 to-primary/60", icon: Aperture, label: "Product" },
+    { h: "h-72", grad: "from-primary/80 via-accent/40 to-primary", icon: Lightbulb, label: "Beauty" },
+    { h: "h-56", grad: "from-accent/80 via-primary/60 to-primary", icon: Mic2, label: "Podcast" },
+    { h: "h-60", grad: "from-primary via-accent/60 to-primary/70", icon: Palette, label: "Fashion" },
+    { h: "h-44", grad: "from-accent via-primary/60 to-accent/70", icon: Monitor, label: "Tech" },
+    { h: "h-52", grad: "from-primary/70 via-primary to-accent/50", icon: Sparkles, label: "Lifestyle" },
+    { h: "h-64", grad: "from-accent/70 via-accent to-primary/60", icon: Volume2, label: "Music" },
+  ];
+  return (
+    <section id="portfolio" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-24">
+      <div className="mb-10 max-w-2xl">
+        <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("pf_eyebrow")}</div>
+        <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-primary">{t("pf_title")}</h2>
+        <p className="mt-3 text-muted-foreground">{t("pf_sub")}</p>
+      </div>
+      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
+        {tiles.map((tile, i) => (
+          <div key={i} className={`mb-4 break-inside-avoid group relative overflow-hidden rounded-2xl ring-1 ring-border ${tile.h}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${tile.grad}`} />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_60%)]" />
+            <div className="absolute inset-0 opacity-20 mix-blend-overlay"
+              style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 14px)" }} />
+            <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+              <div className="flex items-center gap-2">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/20">
+                  <tile.icon className="h-4 w-4" />
+                </span>
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest opacity-80">NewArt</div>
+                  <div className="font-bold">{tile.label}</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- Store Services -------------------- */
+function StoreServices() {
+  const { t } = useI18n();
+  const [added, setAdded] = useState<Record<string, boolean>>({});
+  const services = [
+    {
+      id: "personal", title: t("store_personal_t"), desc: t("store_personal_d"),
+      price: 1200, icon: Camera, accent: "from-primary to-primary/70",
+      features: [t("store_f_pers_1"), t("store_f_pers_2"), t("store_f_pers_3")],
+    },
+    {
+      id: "product", title: t("store_product_t"), desc: t("store_product_d"),
+      price: 1800, icon: Aperture, accent: "from-accent to-accent/70",
+      features: [t("store_f_prod_1"), t("store_f_prod_2"), t("store_f_prod_3")],
+    },
+    {
+      id: "podcast", title: t("store_podcast_t"), desc: t("store_podcast_d"),
+      price: 2200, icon: Mic2, accent: "from-primary via-accent to-primary",
+      features: [t("store_f_pod_1"), t("store_f_pod_2"), t("store_f_pod_3")],
+    },
+  ];
+
+  function addService(s: { id: string; title: string; price: number }) {
+    window.dispatchEvent(new CustomEvent("na:add-store", { detail: { id: s.id, name: s.title, price: s.price } }));
+    setAdded((p) => ({ ...p, [s.id]: true }));
+    setTimeout(() => setAdded((p) => ({ ...p, [s.id]: false })), 2500);
+  }
+
+  return (
+    <section id="services" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-28">
+      <div className="mb-12 max-w-2xl">
+        <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("store_eyebrow")}</div>
+        <h2 className="mt-3 text-4xl sm:text-5xl font-bold text-primary">{t("store_title")}</h2>
+        <p className="mt-4 text-muted-foreground">{t("store_sub")}</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {services.map((s) => (
+          <article key={s.id} className="group relative flex flex-col overflow-hidden rounded-3xl bg-card ring-1 ring-border shadow-soft hover:shadow-elegant transition">
+            <div className={`relative h-40 bg-gradient-to-br ${s.accent} overflow-hidden`}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.3),transparent_60%)]" />
+              <div className="absolute inset-0 grid place-items-center">
+                <s.icon className="h-16 w-16 text-white/90 drop-shadow-lg" />
+              </div>
+              <div className="absolute top-3 end-3 rounded-full bg-white/15 backdrop-blur ring-1 ring-white/25 px-3 py-1 text-[10px] uppercase tracking-widest text-white font-bold">
+                NewArt
+              </div>
+            </div>
+            <div className="flex flex-1 flex-col p-6">
+              <h3 className="text-xl font-bold text-primary">{s.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                {s.features.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 flex items-end justify-between gap-3 pt-4 border-t border-border">
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("store_from")}</div>
+                  <div className="text-2xl font-bold text-primary">{s.price} <span className="text-sm font-medium text-muted-foreground">{t("sar")}</span></div>
+                </div>
+                <button
+                  onClick={() => addService(s)}
+                  className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-xs font-bold transition shadow-elegant ${
+                    added[s.id] ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground hover:scale-[1.02]"
+                  }`}
+                >
+                  {added[s.id] ? (<><Check className="h-4 w-4" /> {t("store_added")}</>)
+                    : (<>{t("store_add")} <ChevronRight className="h-4 w-4 rtl:rotate-180" /></>)}
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- Sticky Booking FAB -------------------- */
+function BookingFAB() {
+  const { t } = useI18n();
+  return (
+    <a
+      href="#booking"
+      className="fixed bottom-5 start-5 z-50 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground shadow-glow ring-2 ring-accent/30 hover:scale-105 transition"
+      aria-label={t("fab_label")}
+    >
+      <CalendarIcon className="h-5 w-5" />
+      <span>{t("fab_label")}</span>
+    </a>
+  );
+}
+
