@@ -486,12 +486,42 @@ function Booking() {
   const [policies, setPolicies] = useState<Record<number, boolean>>({});
   const [payment, setPayment] = useState<"apple" | "tabby" | "tamara" | "bank">("apple");
   const [confirmed, setConfirmed] = useState<null | { ref: string }>(null);
+  const [storeItems, setStoreItems] = useState<{ id: string; name: string; price: number }[]>([]);
+  const [promoInput, setPromoInput] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [promoError, setPromoError] = useState(false);
 
-  const spacePrice = hours * HOURLY_RATE;
+  // Listen for store add events
+  useEffect(() => {
+    function onAdd(e: Event) {
+      const det = (e as CustomEvent).detail as { id: string; name: string; price: number };
+      setStoreItems((prev) => prev.find((p) => p.id === det.id) ? prev : [...prev, det]);
+      document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
+    }
+    window.addEventListener("na:add-store", onAdd as EventListener);
+    return () => window.removeEventListener("na:add-store", onAdd as EventListener);
+  }, []);
+
+  const spacePrice = getSpacePrice(hours);
   const addonItems = ADDONS.filter(a => addons[a.id]);
   const addonsTotal = addonItems.reduce((sum, a) => sum + (a.perHour ? a.price * hours : a.price), 0);
   const insurance = addonItems.length > 0 ? 500 : 200;
-  const total = spacePrice + addonsTotal + insurance;
+  const storeTotal = storeItems.reduce((s, x) => s + x.price, 0);
+  const subtotal = spacePrice + addonsTotal + insurance + storeTotal;
+  const discount = promoApplied ? Math.round(subtotal * 0.10) : 0;
+  const total = subtotal - discount;
+  const longSession = hours >= 7;
+
+  function applyPromo() {
+    if (promoInput.trim().toUpperCase() === PROMO_CODE) {
+      setPromoApplied(true); setPromoError(false);
+    } else {
+      setPromoApplied(false); setPromoError(true);
+    }
+  }
+  function removePromo() {
+    setPromoApplied(false); setPromoError(false); setPromoInput("");
+  }
 
   const canNext = useMemo(() => {
     if (step === 1) return !!date && !!startTime && hours > 0;
@@ -514,6 +544,18 @@ function Booking() {
 
       <Stepper step={step} setStep={setStep} />
 
+      {/* Compensation badges */}
+      <div className="mt-6 flex flex-wrap gap-3">
+        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-xs sm:text-sm font-bold ring-1 ring-primary/20">
+          <Clock className="h-4 w-4" /> {t("prayer_badge")}
+        </div>
+        {longSession && (
+          <div className="inline-flex items-center gap-2 rounded-full bg-accent/15 text-accent px-4 py-2 text-xs sm:text-sm font-bold ring-1 ring-accent/30">
+            <Sparkles className="h-4 w-4" /> {t("compensation_badge")}
+          </div>
+        )}
+      </div>
+
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_380px]">
         <div className="rounded-3xl bg-card shadow-soft ring-1 ring-border overflow-hidden">
           <div className="p-6 sm:p-10">
@@ -526,7 +568,14 @@ function Booking() {
             )}
             {step === 2 && <Step2 addons={addons} setAddons={setAddons} hours={hours} />}
             {step === 3 && <Step3 policies={policies} setPolicies={setPolicies} />}
-            {step === 4 && <Step4 payment={payment} setPayment={setPayment} total={total} />}
+            {step === 4 && (
+              <Step4
+                payment={payment} setPayment={setPayment} total={total}
+                promoInput={promoInput} setPromoInput={setPromoInput}
+                promoApplied={promoApplied} promoError={promoError}
+                applyPromo={applyPromo} removePromo={removePromo}
+              />
+            )}
           </div>
 
           <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 sm:px-10 py-5">
@@ -560,6 +609,9 @@ function Booking() {
           date={date} startTime={startTime} hours={hours}
           spacePrice={spacePrice} addonItems={addonItems} addonsTotal={addonsTotal}
           insurance={insurance} total={total}
+          storeItems={storeItems} removeStoreItem={(id: string) => setStoreItems((p) => p.filter(x => x.id !== id))}
+          discount={discount} promoApplied={promoApplied}
+          longSession={longSession}
         />
       </div>
 
@@ -573,6 +625,7 @@ function Booking() {
     </section>
   );
 }
+
 
 /* -------------------- Stepper -------------------- */
 function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void }) {
