@@ -190,6 +190,56 @@ const T: Dict = {
   confirmation_sent: { en: "A confirmation has been sent to your email. Our concierge will contact you 24 hours before your session.", ar: "تم إرسال التأكيد إلى بريدك الإلكتروني. سيتواصل معك فريقنا قبل 24 ساعة من الجلسة." },
   done: { en: "Done", ar: "تم" },
 
+  // New: pricing / compensation / availability
+  prayer_badge: { en: "Prayer time allowance: 10 minutes free of charge added to your session.", ar: "وقت صلاة: 10 دقائق مجاناً مضافة لجلستك." },
+  compensation_badge: { en: "30 minutes free extension included with long sessions.", ar: "30 دقيقة تعويض مجاني مع الجلسات الطويلة." },
+  reserved: { en: "Reserved", ar: "محجوز" },
+  unavailable: { en: "Unavailable", ar: "غير متاح" },
+  lead_time_note: { en: "Same-day bookings require at least 2 hours lead time.", ar: "الحجز في نفس اليوم يتطلب ساعتين كحد أدنى قبل البدء." },
+  no_slots_today: { en: "No more slots available today. Please pick another date.", ar: "لا توجد فترات متاحة اليوم. اختر تاريخاً آخر." },
+  space_total_label: { en: "Studio space", ar: "مساحة الاستوديو" },
+  saved: { en: "You save", ar: "وفّرت" },
+  discount: { en: "Promo discount", ar: "خصم الكوبون" },
+
+  // Coupon
+  coupon_title: { en: "Promo code", ar: "كود الخصم" },
+  coupon_placeholder: { en: "Enter promo code", ar: "أدخل كود الخصم" },
+  coupon_apply: { en: "Apply", ar: "تطبيق" },
+  coupon_applied: { en: "Promo NEWART10 applied — 10% off.", ar: "تم تطبيق كود NEWART10 — خصم 10%." },
+  coupon_invalid: { en: "Invalid promo code.", ar: "كود الخصم غير صالح." },
+  coupon_remove: { en: "Remove", ar: "إزالة" },
+
+  // Portfolio
+  pf_eyebrow: { en: "Portfolio", ar: "أعمالنا" },
+  pf_title: { en: "Recent productions & sets", ar: "نماذج صور للعرض" },
+  pf_sub: { en: "A curated selection of recent shoots, sets and locations.", ar: "مجموعة مختارة من أحدث جلساتنا ومواقعنا." },
+
+  // Store
+  store_eyebrow: { en: "Studio Services", ar: "خدمات الاستوديو" },
+  store_title: { en: "Ready-made session packages", ar: "باقات جلسات جاهزة" },
+  store_sub: { en: "Purchase complete sessions tailored to your project.", ar: "اشترِ جلسات متكاملة مصممة لمشروعك." },
+  store_personal_t: { en: "Personal Sessions", ar: "جلسات شخصية" },
+  store_personal_d: { en: "Polished personal portraits with styling guidance.", ar: "جلسات بورتريه شخصية احترافية مع توجيه التنسيق." },
+  store_product_t: { en: "Product Sessions", ar: "جلسات منتجات" },
+  store_product_d: { en: "E-commerce-ready product photography with controlled lighting.", ar: "تصوير منتجات جاهز للتجارة الإلكترونية بإضاءة مضبوطة." },
+  store_podcast_t: { en: "Podcast Sessions", ar: "بودكاست" },
+  store_podcast_d: { en: "Full podcast set-up with multi-cam and audio engineering.", ar: "تجهيز بودكاست متكامل بكاميرات متعددة وهندسة صوت." },
+  store_f_pers_1: { en: "2-hour styled portrait session", ar: "جلسة بورتريه منسقة لساعتين" },
+  store_f_pers_2: { en: "Pro photographer & lighting", ar: "مصور محترف وإضاءة" },
+  store_f_pers_3: { en: "20 retouched final images", ar: "20 صورة نهائية معدّلة" },
+  store_f_prod_1: { en: "Tabletop & cyclorama options", ar: "خيارات تصوير منتجات وسايكلوراما" },
+  store_f_prod_2: { en: "Background & prop styling", ar: "تنسيق الخلفيات والإكسسوارات" },
+  store_f_prod_3: { en: "30 edited product shots", ar: "30 صورة منتج معدّلة" },
+  store_f_pod_1: { en: "3-cam podcast recording", ar: "تسجيل بودكاست بثلاث كاميرات" },
+  store_f_pod_2: { en: "Lapel mics & mixer", ar: "ميكروفونات لاسلكية ومكسر صوت" },
+  store_f_pod_3: { en: "Edited episode delivery", ar: "تسليم حلقة معدّلة" },
+  store_from: { en: "From", ar: "ابتداءً من" },
+  store_add: { en: "Add to Booking", ar: "أضف إلى الحجز" },
+  store_added: { en: "Added ✓", ar: "تمت الإضافة ✓" },
+
+  // FAB
+  fab_label: { en: "Book Now", ar: "احجز الآن" },
+
   // Footer
   ft_tag: { en: "Where productions feel premium and bookings feel effortless.", ar: "حيث يكون الإنتاج فاخراً والحجز سهلاً." },
   ft_contact: { en: "Contact", ar: "تواصل" },
