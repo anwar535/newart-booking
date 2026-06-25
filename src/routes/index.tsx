@@ -45,7 +45,7 @@ function mockReservedSlots(date: Date): string[] {
   return Array.from(new Set(taken));
 }
 
-const PROMO_CODE = "NEWART10";
+// Promo code is validated server-side via validatePromo() — never trust client totals.
 
 /* -------------------- i18n -------------------- */
 type Lang = "en" | "ar";
