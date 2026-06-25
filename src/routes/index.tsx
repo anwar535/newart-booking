@@ -1443,3 +1443,148 @@ function Footer() {
     </footer>
   );
 }
+
+/* -------------------- Portfolio (masonry placeholders) -------------------- */
+function Portfolio() {
+  const { t } = useI18n();
+  // Heights tuned for an organic masonry feel
+  const tiles = [
+    { h: "h-64", grad: "from-primary via-primary/70 to-accent/60", icon: Camera, label: "Editorial" },
+    { h: "h-48", grad: "from-accent via-accent/70 to-primary/60", icon: Aperture, label: "Product" },
+    { h: "h-72", grad: "from-primary/80 via-accent/40 to-primary", icon: Lightbulb, label: "Beauty" },
+    { h: "h-56", grad: "from-accent/80 via-primary/60 to-primary", icon: Mic2, label: "Podcast" },
+    { h: "h-60", grad: "from-primary via-accent/60 to-primary/70", icon: Palette, label: "Fashion" },
+    { h: "h-44", grad: "from-accent via-primary/60 to-accent/70", icon: Monitor, label: "Tech" },
+    { h: "h-52", grad: "from-primary/70 via-primary to-accent/50", icon: Sparkles, label: "Lifestyle" },
+    { h: "h-64", grad: "from-accent/70 via-accent to-primary/60", icon: Volume2, label: "Music" },
+  ];
+  return (
+    <section id="portfolio" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-24">
+      <div className="mb-10 max-w-2xl">
+        <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("pf_eyebrow")}</div>
+        <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-primary">{t("pf_title")}</h2>
+        <p className="mt-3 text-muted-foreground">{t("pf_sub")}</p>
+      </div>
+      <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
+        {tiles.map((tile, i) => (
+          <div key={i} className={`mb-4 break-inside-avoid group relative overflow-hidden rounded-2xl ring-1 ring-border ${tile.h}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${tile.grad}`} />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_60%)]" />
+            <div className="absolute inset-0 opacity-20 mix-blend-overlay"
+              style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 14px)" }} />
+            <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+              <div className="flex items-center gap-2">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/20">
+                  <tile.icon className="h-4 w-4" />
+                </span>
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest opacity-80">NewArt</div>
+                  <div className="font-bold">{tile.label}</div>
+                </div>
+              </div>
+            </div>
+            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- Store Services -------------------- */
+function StoreServices() {
+  const { t } = useI18n();
+  const [added, setAdded] = useState<Record<string, boolean>>({});
+  const services = [
+    {
+      id: "personal", title: t("store_personal_t"), desc: t("store_personal_d"),
+      price: 1200, icon: Camera, accent: "from-primary to-primary/70",
+      features: [t("store_f_pers_1"), t("store_f_pers_2"), t("store_f_pers_3")],
+    },
+    {
+      id: "product", title: t("store_product_t"), desc: t("store_product_d"),
+      price: 1800, icon: Aperture, accent: "from-accent to-accent/70",
+      features: [t("store_f_prod_1"), t("store_f_prod_2"), t("store_f_prod_3")],
+    },
+    {
+      id: "podcast", title: t("store_podcast_t"), desc: t("store_podcast_d"),
+      price: 2200, icon: Mic2, accent: "from-primary via-accent to-primary",
+      features: [t("store_f_pod_1"), t("store_f_pod_2"), t("store_f_pod_3")],
+    },
+  ];
+
+  function addService(s: { id: string; title: string; price: number }) {
+    window.dispatchEvent(new CustomEvent("na:add-store", { detail: { id: s.id, name: s.title, price: s.price } }));
+    setAdded((p) => ({ ...p, [s.id]: true }));
+    setTimeout(() => setAdded((p) => ({ ...p, [s.id]: false })), 2500);
+  }
+
+  return (
+    <section id="services" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-28">
+      <div className="mb-12 max-w-2xl">
+        <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("store_eyebrow")}</div>
+        <h2 className="mt-3 text-4xl sm:text-5xl font-bold text-primary">{t("store_title")}</h2>
+        <p className="mt-4 text-muted-foreground">{t("store_sub")}</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-3">
+        {services.map((s) => (
+          <article key={s.id} className="group relative flex flex-col overflow-hidden rounded-3xl bg-card ring-1 ring-border shadow-soft hover:shadow-elegant transition">
+            <div className={`relative h-40 bg-gradient-to-br ${s.accent} overflow-hidden`}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.3),transparent_60%)]" />
+              <div className="absolute inset-0 grid place-items-center">
+                <s.icon className="h-16 w-16 text-white/90 drop-shadow-lg" />
+              </div>
+              <div className="absolute top-3 end-3 rounded-full bg-white/15 backdrop-blur ring-1 ring-white/25 px-3 py-1 text-[10px] uppercase tracking-widest text-white font-bold">
+                NewArt
+              </div>
+            </div>
+            <div className="flex flex-1 flex-col p-6">
+              <h3 className="text-xl font-bold text-primary">{s.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                {s.features.map((f, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 flex items-end justify-between gap-3 pt-4 border-t border-border">
+                <div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("store_from")}</div>
+                  <div className="text-2xl font-bold text-primary">{s.price} <span className="text-sm font-medium text-muted-foreground">{t("sar")}</span></div>
+                </div>
+                <button
+                  onClick={() => addService(s)}
+                  className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-xs font-bold transition shadow-elegant ${
+                    added[s.id] ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground hover:scale-[1.02]"
+                  }`}
+                >
+                  {added[s.id] ? (<><Check className="h-4 w-4" /> {t("store_added")}</>)
+                    : (<>{t("store_add")} <ChevronRight className="h-4 w-4 rtl:rotate-180" /></>)}
+                </button>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- Sticky Booking FAB -------------------- */
+function BookingFAB() {
+  const { t } = useI18n();
+  return (
+    <a
+      href="#booking"
+      className="fixed bottom-5 start-5 z-50 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground shadow-glow ring-2 ring-accent/30 hover:scale-105 transition"
+      aria-label={t("fab_label")}
+    >
+      <CalendarIcon className="h-5 w-5" />
+      <span>{t("fab_label")}</span>
+    </a>
+  );
+}
+
