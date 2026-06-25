@@ -669,8 +669,14 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
 function Step1({
   date, setDate, startTime, setStartTime, hours, setHours,
 }: any) {
-  const { t, lang } = useI18n();
+  const { t } = useI18n();
   const [cursor, setCursor] = useState(() => { const d = new Date(); d.setDate(1); return d; });
+
+  const now = new Date();
+  const isToday = !!date && date.toDateString() === now.toDateString();
+  const minStartHourToday = now.getHours() + 2 + (now.getMinutes() > 0 ? 1 : 0);
+
+  const reserved = useMemo(() => date ? mockReservedSlots(date) : [], [date]);
 
   const slots = useMemo(() => {
     if (!date) return [];
@@ -678,16 +684,26 @@ function Step1({
     const isFri = day === 5;
     const startH = isFri ? 16 : 9;
     const endH = 22;
-    const arr: string[] = [];
-    for (let h = startH; h < endH; h++) arr.push(`${String(h).padStart(2, "0")}:00`);
+    const arr: { time: string; reserved: boolean; tooLate: boolean }[] = [];
+    for (let h = startH; h < endH; h++) {
+      const time = `${String(h).padStart(2, "0")}:00`;
+      const isReserved = reserved.includes(time);
+      const tooLate = isToday && h < minStartHourToday;
+      arr.push({ time, reserved: isReserved, tooLate });
+    }
     return arr;
-  }, [date]);
+  }, [date, reserved, isToday, minStartHourToday]);
+
+  const allBlocked = slots.length > 0 && slots.every(s => s.reserved || s.tooLate);
 
   const maxHours = useMemo(() => {
-    if (!date || !startTime) return 12;
+    if (!date || !startTime) return MAX_HOURS;
     const sh = parseInt(startTime.split(":")[0], 10);
-    return 22 - sh;
+    return Math.min(MAX_HOURS, 22 - sh);
   }, [date, startTime]);
+
+  const currentSpace = getSpacePrice(hours);
+  const showStrike = hours === 1;
 
   return (
     <div className="space-y-8">
@@ -704,18 +720,42 @@ function Step1({
                 {t("pick_date_first")}
               </div>
             ) : (
-              <div className="mt-3 grid grid-cols-4 gap-2">
-                {slots.map((tm) => (
-                  <button
-                    key={tm}
-                    onClick={() => setStartTime(tm)}
-                    className={`rounded-xl py-2.5 text-sm font-medium ring-1 transition
-                      ${startTime === tm ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/50"}`}
-                  >
-                    {tm}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="mt-3 grid grid-cols-4 gap-2">
+                  {slots.map((s) => {
+                    const disabled = s.reserved || s.tooLate;
+                    const isSel = startTime === s.time;
+                    return (
+                      <button
+                        key={s.time}
+                        onClick={() => !disabled && setStartTime(s.time)}
+                        disabled={disabled}
+                        title={s.reserved ? t("reserved") : s.tooLate ? t("lead_time_note") : ""}
+                        className={`relative rounded-xl py-2.5 text-sm font-medium ring-1 transition overflow-hidden
+                          ${isSel ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                            : s.reserved ? "cursor-not-allowed bg-destructive/10 text-destructive/70 ring-destructive/30"
+                            : s.tooLate ? "cursor-not-allowed bg-muted text-muted-foreground/50 ring-border line-through"
+                            : "bg-background ring-border hover:ring-primary/50"}`}
+                      >
+                        {s.reserved && (
+                          <span aria-hidden className="pointer-events-none absolute inset-0 opacity-40"
+                            style={{ backgroundImage: "repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 8px)" }} />
+                        )}
+                        <span className="relative">{s.time}</span>
+                        {s.reserved && (
+                          <span className="relative block text-[9px] uppercase tracking-wider mt-0.5">{t("reserved")}</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {isToday && (
+                  <p className="mt-3 text-xs text-accent font-bold">⏱ {t("lead_time_note")}</p>
+                )}
+                {allBlocked && (
+                  <p className="mt-2 text-xs text-destructive font-bold">{t("no_slots_today")}</p>
+                )}
+              </>
             )}
             {date && (
               <p className="mt-3 text-xs text-muted-foreground">{t("working_hours")}</p>
@@ -738,15 +778,45 @@ function Step1({
                 className="grid h-12 w-12 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition"
               >+</button>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              {t("base_rate")}: <span className="font-bold text-foreground">{HOURLY_RATE} {t("sar")}/{lang === "en" ? "hr" : "س"}</span> · {t("total_space")}: <span className="font-bold text-primary">{hours * HOURLY_RATE} {t("sar")}</span>
-            </p>
+            <div className="mt-3 flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">{t("total_space")}</span>
+              <span className="flex items-center gap-2">
+                {showStrike && (
+                  <span className="text-muted-foreground line-through">{ORIGINAL_1H_PRICE} {t("sar")}</span>
+                )}
+                <span className="font-bold text-primary text-base">{currentSpace} {t("sar")}</span>
+                {showStrike && (
+                  <span className="rounded-full bg-accent/15 text-accent px-2 py-0.5 font-bold">-{ORIGINAL_1H_PRICE - currentSpace} {t("sar")}</span>
+                )}
+              </span>
+            </div>
+
+            {/* Pricing matrix preview */}
+            <div className="mt-4 grid grid-cols-4 gap-1.5">
+              {Object.entries(HOUR_PRICING).map(([h, p]) => {
+                const active = parseInt(h) === hours;
+                return (
+                  <button
+                    key={h}
+                    onClick={() => setHours(parseInt(h))}
+                    className={`rounded-lg px-2 py-2 text-center ring-1 transition ${
+                      active ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                        : "bg-background ring-border hover:ring-primary/50"
+                    }`}
+                  >
+                    <div className="text-[10px] font-bold opacity-80">{h}h</div>
+                    <div className="text-xs font-bold">{p}</div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 
 function CalendarGrid({ cursor, setCursor, selected, onSelect }: any) {
   const { lang } = useI18n();
