@@ -496,6 +496,9 @@ function Booking() {
   const [promoInput, setPromoInput] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoError, setPromoError] = useState(false);
+  const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoPending, setPromoPending] = useState(false);
+  const validatePromoFn = useServerFn(validatePromo);
 
   // Listen for store add events
   useEffect(() => {
@@ -514,19 +517,50 @@ function Booking() {
   const insurance = addonItems.length > 0 ? 500 : 200;
   const storeTotal = storeItems.reduce((s, x) => s + x.price, 0);
   const subtotal = spacePrice + addonsTotal + insurance + storeTotal;
-  const discount = promoApplied ? Math.round(subtotal * 0.10) : 0;
+  // Discount is server-validated; if subtotal changes after applying, re-validate.
+  const discount = promoApplied ? Math.min(promoDiscount, subtotal) : 0;
   const total = subtotal - discount;
   const longSession = hours >= 7;
 
-  function applyPromo() {
-    if (promoInput.trim().toUpperCase() === PROMO_CODE) {
-      setPromoApplied(true); setPromoError(false);
-    } else {
-      setPromoApplied(false); setPromoError(true);
+  // Re-validate server-side if subtotal changes while a promo is applied.
+  useEffect(() => {
+    if (!promoApplied) return;
+    let cancelled = false;
+    validatePromoFn({ data: { code: promoInput, subtotal } })
+      .then((res) => {
+        if (cancelled) return;
+        if (res.valid) setPromoDiscount(res.discount);
+        else { setPromoApplied(false); setPromoDiscount(0); }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal, promoApplied]);
+
+  async function applyPromo() {
+    setPromoPending(true);
+    setPromoError(false);
+    try {
+      const res = await validatePromoFn({ data: { code: promoInput, subtotal } });
+      if (res.valid) {
+        setPromoApplied(true);
+        setPromoDiscount(res.discount);
+        setPromoError(false);
+      } else {
+        setPromoApplied(false);
+        setPromoDiscount(0);
+        setPromoError(true);
+      }
+    } catch {
+      setPromoApplied(false);
+      setPromoDiscount(0);
+      setPromoError(true);
+    } finally {
+      setPromoPending(false);
     }
   }
   function removePromo() {
-    setPromoApplied(false); setPromoError(false); setPromoInput("");
+    setPromoApplied(false); setPromoError(false); setPromoInput(""); setPromoDiscount(0);
   }
 
   const canNext = useMemo(() => {
