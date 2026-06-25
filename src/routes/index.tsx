@@ -317,12 +317,16 @@ function Index() {
       <div className="min-h-screen bg-background text-foreground" dir={i18n.dir}>
         <FloatingControls theme={theme} setTheme={setTheme} />
         <Hero />
+        <Portfolio />
         <Booking />
+        <StoreServices />
         <Footer />
+        <BookingFAB />
       </div>
     </I18nCtx.Provider>
   );
 }
+
 
 /* -------------------- Floating Controls -------------------- */
 function FloatingControls({ theme, setTheme }: { theme: "dark" | "light"; setTheme: (t: "dark" | "light") => void }) {
