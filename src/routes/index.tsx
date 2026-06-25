@@ -379,12 +379,8 @@ function Hero() {
             <a href="#showreel" className="hover:text-white transition">{t("nav_showreel")}</a>
             <a href="#booking" className="hover:text-white transition">{t("nav_book")}</a>
           </div>
-          <a
-            href="#booking"
-            className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground shadow-glow transition hover:scale-105"
-          >
-            {t("nav_reserve")} <ChevronRight className="h-4 w-4 rtl:rotate-180" />
-          </a>
+          <div aria-hidden className="h-8" />
+
         </nav>
 
         <div className="mt-20 grid items-end gap-12 lg:grid-cols-12">
