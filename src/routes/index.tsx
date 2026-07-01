@@ -1,54 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
-  Calendar as CalendarIcon,
-  Clock,
-  Camera,
-  Aperture,
-  Lightbulb,
-  Wrench,
-  Monitor,
-  Wifi,
-  Sparkles,
-  Palette,
-  Mic2,
-  Volume2,
-  ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  CreditCard,
-  Smartphone,
-  Banknote,
-  Upload,
-  PartyPopper,
-  X,
-  ArrowDown,
-  PlayCircle,
-  MapPin,
-  Star,
-  Sun,
-  Moon,
-  Languages,
-  Mail,
-  Phone,
-  MessageCircle,
-  Instagram,
+  Calendar as CalendarIcon, Clock, Camera, Aperture, Lightbulb, Wrench, Monitor,
+  Wifi, Sparkles, Palette, Mic2, Volume2, ShieldCheck, ChevronLeft, ChevronRight,
+  Check, CreditCard, Smartphone, Banknote, Upload, PartyPopper, X, ArrowDown,
+  PlayCircle, MapPin, Star, Sun, Moon, Languages, Mail, Phone, MessageCircle, Instagram,
 } from "lucide-react";
 import logoAsset from "@/assets/newart-logo.png.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { validatePromo } from "@/lib/promo.functions";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "NewArt Studio — Book Your Creative Space" },
-      {
-        name: "description",
-        content: "Premium studio booking for creators. Reserve your space, gear, and crew — هندسة الإبداع.",
-      },
+      { name: "description", content: "Premium studio booking for creators. Reserve your space, gear, and crew — هندسة الإبداع." },
       { property: "og:title", content: "NewArt Studio — Book Your Creative Space" },
       { property: "og:description", content: "Premium studio booking for creators in Saudi Arabia." },
     ],
@@ -58,14 +24,7 @@ export const Route = createFileRoute("/")({
 
 /* -------------------- Pricing matrix -------------------- */
 const HOUR_PRICING: Record<number, number> = {
-  1: 200,
-  2: 350,
-  3: 500,
-  4: 650,
-  5: 750,
-  6: 850,
-  7: 900,
-  8: 1000,
+  1: 200, 2: 350, 3: 500, 4: 650, 5: 750, 6: 850, 7: 900, 8: 1000,
 };
 const ORIGINAL_1H_PRICE = 290;
 const MAX_HOURS = 8;
@@ -78,7 +37,7 @@ function getSpacePrice(hours: number) {
 function mockReservedSlots(date: Date): string[] {
   // Deterministic pseudo-random based on date
   const seed = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
-  const pool = ["10:00", "12:00", "14:00", "16:00", "18:00", "20:00", "09:00", "11:00", "15:00", "19:00"];
+  const pool = ["10:00","12:00","14:00","16:00","18:00","20:00","09:00","11:00","15:00","19:00"];
   const taken: string[] = [];
   for (let i = 0; i < 3; i++) {
     taken.push(pool[(seed + i * 7) % pool.length]);
@@ -103,14 +62,8 @@ const T: Dict = {
   hero_h1_b: { en: "frame", ar: "إطار" },
   hero_h1_c: { en: "becomes a", ar: "إلى" },
   hero_h1_d: { en: "story", ar: "قصة" },
-  hero_sub: {
-    en: "Premium studios, pro gear, and a booking flow as polished as a first-class lounge.",
-    ar: "استوديوهات فاخرة، معدات احترافية، وتجربة حجز بأناقة الدرجة الأولى.",
-  },
-  hero_sub2: {
-    en: "Book your creative space in minutes — تجربة تليق بإنتاجك.",
-    ar: "احجز مساحتك الإبداعية في دقائق — بأسلوب يليق بإنتاجك.",
-  },
+  hero_sub: { en: "Premium studios, pro gear, and a booking flow as polished as a first-class lounge.", ar: "استوديوهات فاخرة، معدات احترافية، وتجربة حجز بأناقة الدرجة الأولى." },
+  hero_sub2: { en: "Book your creative space in minutes — تجربة تليق بإنتاجك.", ar: "احجز مساحتك الإبداعية في دقائق — بأسلوب يليق بإنتاجك." },
   hero_cta: { en: "Book Your Space Now", ar: "احجز مساحتك الآن" },
   hero_watch: { en: "Watch the Showreel", ar: "شاهد العرض" },
   stat_prod: { en: "Productions", ar: "إنتاج" },
@@ -124,10 +77,7 @@ const T: Dict = {
   // Booking section header
   section_eyebrow: { en: "Booking · الحجز", ar: "الحجز · Booking" },
   section_title: { en: "Reserve your studio in four steps.", ar: "احجز استوديوك في أربع خطوات." },
-  section_sub: {
-    en: "A frictionless flow inspired by first-class check-in. Live pricing, transparent terms, instant confirmation.",
-    ar: "تجربة حجز سلسة بأسلوب الدرجة الأولى. تسعير مباشر، شروط واضحة، تأكيد فوري.",
-  },
+  section_sub: { en: "A frictionless flow inspired by first-class check-in. Live pricing, transparent terms, instant confirmation.", ar: "تجربة حجز سلسة بأسلوب الدرجة الأولى. تسعير مباشر، شروط واضحة، تأكيد فوري." },
 
   // Stepper
   step_date: { en: "Date & Time", ar: "التاريخ والوقت" },
@@ -145,16 +95,10 @@ const T: Dict = {
   s1_sub: { en: "Select the date and start time that suit you.", ar: "اختر التاريخ والوقت المناسبين." },
   start_time: { en: "Start time", ar: "وقت البدء" },
   hours_label: { en: "Number of hours", ar: "عدد الساعات" },
-  pick_date_first: {
-    en: "Select a date first to see available hourly slots.",
-    ar: "اختر التاريخ أولاً لعرض الفترات المتاحة.",
-  },
+  pick_date_first: { en: "Select a date first to see available hourly slots.", ar: "اختر التاريخ أولاً لعرض الفترات المتاحة." },
   hours_unit: { en: "hours", ar: "ساعات" },
   hour_unit: { en: "hour", ar: "ساعة" },
-  working_hours: {
-    en: "Working hours: Sat–Thu 9:00–22:00 · Fri 16:00–22:00",
-    ar: "ساعات العمل: السبت–الخميس 9:00–22:00 · الجمعة 16:00–22:00",
-  },
+  working_hours: { en: "Working hours: Sat–Thu 9:00–22:00 · Fri 16:00–22:00", ar: "ساعات العمل: السبت–الخميس 9:00–22:00 · الجمعة 16:00–22:00" },
   base_rate: { en: "Base space rate", ar: "سعر المساحة الأساسي" },
   total_space: { en: "Total space", ar: "إجمالي المساحة" },
 
@@ -169,14 +113,8 @@ const T: Dict = {
   addons_sub: { en: "Professional gear at transparent prices", ar: "معدات احترافية بأسعار شفافة" },
   flat: { en: "flat", ar: "ثابت" },
   insurance_title: { en: "Refundable Security Insurance", ar: "تأمين قابل للاسترداد" },
-  insurance_low: {
-    en: "Base insurance of 200 SAR applies. Fully refundable after the session.",
-    ar: "تأمين أساسي 200 ريال، يُسترد بالكامل بعد الجلسة.",
-  },
-  insurance_high: {
-    en: "Premium gear detected — insurance raised to 500 SAR. Fully refundable after inspection.",
-    ar: "تم اختيار معدات احترافية — التأمين 500 ريال، يُسترد بالكامل بعد المعاينة.",
-  },
+  insurance_low: { en: "Base insurance of 200 SAR applies. Fully refundable after the session.", ar: "تأمين أساسي 200 ريال، يُسترد بالكامل بعد الجلسة." },
+  insurance_high: { en: "Premium gear detected — insurance raised to 500 SAR. Fully refundable after inspection.", ar: "تم اختيار معدات احترافية — التأمين 500 ريال، يُسترد بالكامل بعد المعاينة." },
   refundable: { en: "refundable", ar: "قابل للاسترداد" },
 
   // Included items
@@ -198,26 +136,14 @@ const T: Dict = {
   s3_title: { en: "Policies & Security Deposit", ar: "السياسات ومبلغ التأمين" },
   s3_sub: { en: "Review terms and accept to continue.", ar: "اطّلع على الشروط ووافق للمتابعة." },
   deposit_title: { en: "Refundable Security Deposit", ar: "مبلغ تأمين قابل للاسترداد" },
-  deposit_body: {
-    en: "A refundable deposit is collected to cover potential damages. It is returned in full within 3 business days following a clean post-session inspection.",
-    ar: "يُسترد مبلغ التأمين بالكامل خلال 3 أيام عمل بعد التحقق من سلامة الأستوديو والمعدات.",
-  },
+  deposit_body: { en: "A refundable deposit is collected to cover potential damages. It is returned in full within 3 business days following a clean post-session inspection.", ar: "يُسترد مبلغ التأمين بالكامل خلال 3 أيام عمل بعد التحقق من سلامة الأستوديو والمعدات." },
 
   pol1_t: { en: "Cancellation Policy", ar: "سياسة الإلغاء" },
-  pol1_b: {
-    en: "Free cancellation up to 48 hours before the booking start time. Cancellations within 48 hours forfeit 50% of the space fee. No-show forfeits 100%.",
-    ar: "إلغاء مجاني قبل 48 ساعة من بداية الحجز. الإلغاء خلال 48 ساعة يخصم 50% من قيمة المساحة، وعدم الحضور يخصم 100%.",
-  },
+  pol1_b: { en: "Free cancellation up to 48 hours before the booking start time. Cancellations within 48 hours forfeit 50% of the space fee. No-show forfeits 100%.", ar: "إلغاء مجاني قبل 48 ساعة من بداية الحجز. الإلغاء خلال 48 ساعة يخصم 50% من قيمة المساحة، وعدم الحضور يخصم 100%." },
   pol2_t: { en: "Damage & Property", ar: "الأضرار والممتلكات" },
-  pol2_b: {
-    en: "The client is liable for any damage to studio property or equipment. Damages are deducted from the refundable security deposit.",
-    ar: "يتحمل العميل أي أضرار للأستوديو أو المعدات. تُخصم من مبلغ التأمين القابل للاسترداد.",
-  },
+  pol2_b: { en: "The client is liable for any damage to studio property or equipment. Damages are deducted from the refundable security deposit.", ar: "يتحمل العميل أي أضرار للأستوديو أو المعدات. تُخصم من مبلغ التأمين القابل للاسترداد." },
   pol3_t: { en: "Timing & Conduct", ar: "الالتزام والوقت" },
-  pol3_b: {
-    en: "Sessions start and end strictly within the booked slot. Overtime is charged at the hourly rate. No smoking, food, or unauthorized guests inside the shooting area.",
-    ar: "تبدأ الجلسات وتنتهي ضمن الوقت المحجوز فقط. يُحتسب الوقت الإضافي بالسعر الساعي. ممنوع التدخين أو الطعام أو الضيوف غير المصرح بهم.",
-  },
+  pol3_b: { en: "Sessions start and end strictly within the booked slot. Overtime is charged at the hourly rate. No smoking, food, or unauthorized guests inside the shooting area.", ar: "تبدأ الجلسات وتنتهي ضمن الوقت المحجوز فقط. يُحتسب الوقت الإضافي بالسعر الساعي. ممنوع التدخين أو الطعام أو الضيوف غير المصرح بهم." },
 
   // Step 4
   s4_eyebrow: { en: "Step 04", ar: "الخطوة 04" },
@@ -227,10 +153,7 @@ const T: Dict = {
   pay_tabby: { en: "Tabby · 4 splits", ar: "تابي · 4 دفعات" },
   pay_tamara: { en: "Tamara · 4 splits", ar: "تمارا · 4 دفعات" },
   pay_bank: { en: "Bank Transfer", ar: "تحويل بنكي" },
-  apple_hint: {
-    en: "Authorize {n} SAR using Face ID on your device.",
-    ar: "أكّد دفع {n} ريال باستخدام Face ID على جهازك.",
-  },
+  apple_hint: { en: "Authorize {n} SAR using Face ID on your device.", ar: "أكّد دفع {n} ريال باستخدام Face ID على جهازك." },
   apple_btn: { en: "Pay with  Pay", ar: "ادفع بـ Apple Pay" },
   split_label: { en: "split in 4", ar: "مقسّمة على 4" },
   split_payments: { en: "× 4 payments", ar: "× 4 دفعات" },
@@ -266,31 +189,16 @@ const T: Dict = {
   ref_no: { en: "Reference Number", ar: "رقم المرجع" },
   duration: { en: "Duration", ar: "المدة" },
   total: { en: "Total", ar: "الإجمالي" },
-  confirmation_sent: {
-    en: "A confirmation has been sent to your email. Our concierge will contact you 24 hours before your session.",
-    ar: "تم إرسال التأكيد إلى بريدك الإلكتروني. سيتواصل معك فريقنا قبل 24 ساعة من الجلسة.",
-  },
+  confirmation_sent: { en: "A confirmation has been sent to your email. Our concierge will contact you 24 hours before your session.", ar: "تم إرسال التأكيد إلى بريدك الإلكتروني. سيتواصل معك فريقنا قبل 24 ساعة من الجلسة." },
   done: { en: "Done", ar: "تم" },
 
   // New: pricing / compensation / availability
-  prayer_badge: {
-    en: "Prayer time allowance: 10 minutes free of charge added to your session.",
-    ar: "وقت صلاة: 10 دقائق مجاناً مضافة لجلستك.",
-  },
-  compensation_badge: {
-    en: "30 minutes free extension included with long sessions.",
-    ar: "30 دقيقة تعويض مجاني مع الجلسات الطويلة.",
-  },
+  prayer_badge: { en: "Prayer time allowance: 10 minutes free of charge added to your session.", ar: "وقت صلاة: 10 دقائق مجاناً مضافة لجلستك." },
+  compensation_badge: { en: "30 minutes free extension included with long sessions.", ar: "30 دقيقة تعويض مجاني مع الجلسات الطويلة." },
   reserved: { en: "Reserved", ar: "محجوز" },
   unavailable: { en: "Unavailable", ar: "غير متاح" },
-  lead_time_note: {
-    en: "Same-day bookings require at least 2 hours lead time.",
-    ar: "الحجز في نفس اليوم يتطلب ساعتين كحد أدنى قبل البدء.",
-  },
-  no_slots_today: {
-    en: "No more slots available today. Please pick another date.",
-    ar: "لا توجد فترات متاحة اليوم. اختر تاريخاً آخر.",
-  },
+  lead_time_note: { en: "Same-day bookings require at least 2 hours lead time.", ar: "الحجز في نفس اليوم يتطلب ساعتين كحد أدنى قبل البدء." },
+  no_slots_today: { en: "No more slots available today. Please pick another date.", ar: "لا توجد فترات متاحة اليوم. اختر تاريخاً آخر." },
   space_total_label: { en: "Studio space", ar: "مساحة الاستوديو" },
   saved: { en: "You save", ar: "وفّرت" },
   discount: { en: "Promo discount", ar: "خصم الكوبون" },
@@ -306,30 +214,18 @@ const T: Dict = {
   // Portfolio
   pf_eyebrow: { en: "Portfolio", ar: "أعمالنا" },
   pf_title: { en: "Recent productions & sets", ar: "نماذج صور للعرض" },
-  pf_sub: {
-    en: "A curated selection of recent shoots, sets and locations.",
-    ar: "مجموعة مختارة من أحدث جلساتنا ومواقعنا.",
-  },
+  pf_sub: { en: "A curated selection of recent shoots, sets and locations.", ar: "مجموعة مختارة من أحدث جلساتنا ومواقعنا." },
 
   // Store
   store_eyebrow: { en: "Studio Services", ar: "خدمات الاستوديو" },
   store_title: { en: "Ready-made session packages", ar: "باقات جلسات جاهزة" },
   store_sub: { en: "Purchase complete sessions tailored to your project.", ar: "اشترِ جلسات متكاملة مصممة لمشروعك." },
   store_personal_t: { en: "Personal Sessions", ar: "جلسات شخصية" },
-  store_personal_d: {
-    en: "Polished personal portraits with styling guidance.",
-    ar: "جلسات بورتريه شخصية احترافية مع توجيه التنسيق.",
-  },
+  store_personal_d: { en: "Polished personal portraits with styling guidance.", ar: "جلسات بورتريه شخصية احترافية مع توجيه التنسيق." },
   store_product_t: { en: "Product Sessions", ar: "جلسات منتجات" },
-  store_product_d: {
-    en: "E-commerce-ready product photography with controlled lighting.",
-    ar: "تصوير منتجات جاهز للتجارة الإلكترونية بإضاءة مضبوطة.",
-  },
+  store_product_d: { en: "E-commerce-ready product photography with controlled lighting.", ar: "تصوير منتجات جاهز للتجارة الإلكترونية بإضاءة مضبوطة." },
   store_podcast_t: { en: "Podcast Sessions", ar: "بودكاست" },
-  store_podcast_d: {
-    en: "Full podcast set-up with multi-cam and audio engineering.",
-    ar: "تجهيز بودكاست متكامل بكاميرات متعددة وهندسة صوت.",
-  },
+  store_podcast_d: { en: "Full podcast set-up with multi-cam and audio engineering.", ar: "تجهيز بودكاست متكامل بكاميرات متعددة وهندسة صوت." },
   store_f_pers_1: { en: "2-hour styled portrait session", ar: "جلسة بورتريه منسقة لساعتين" },
   store_f_pers_2: { en: "Pro photographer & lighting", ar: "مصور محترف وإضاءة" },
   store_f_pers_3: { en: "20 retouched final images", ar: "20 صورة نهائية معدّلة" },
@@ -347,10 +243,7 @@ const T: Dict = {
   fab_label: { en: "Book Now", ar: "احجز الآن" },
 
   // Footer
-  ft_tag: {
-    en: "Where productions feel premium and bookings feel effortless.",
-    ar: "حيث يكون الإنتاج فاخراً والحجز سهلاً.",
-  },
+  ft_tag: { en: "Where productions feel premium and bookings feel effortless.", ar: "حيث يكون الإنتاج فاخراً والحجز سهلاً." },
   ft_contact: { en: "Contact", ar: "تواصل" },
   ft_email: { en: "Email", ar: "البريد الإلكتروني" },
   ft_phone: { en: "Phone", ar: "الهاتف" },
@@ -414,54 +307,12 @@ function Index() {
     localStorage.setItem("na_theme", theme);
   }, [theme]);
 
-  // Cinematic scroll experience: hero pin/scale-fade + staggered reveals site-wide.
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.normalizeScroll(true);
-
-      // Hero recedes (scales up + fades) as the next section covers it — the signature moment.
-      if (!reduceMotion) {
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: "#hero",
-              start: "top top",
-              end: "bottom top",
-              scrub: true,
-            },
-          })
-          .fromTo(
-            "#hero",
-            { scale: 1, opacity: 1 },
-            { scale: 1.1, opacity: 0.25, ease: "none", transformOrigin: "center center" },
-          );
-      }
-
-      // Generic staggered reveal for anything marked data-reveal, batched per section.
-      gsap.set("[data-reveal]", reduceMotion ? {} : { opacity: 0, y: 28 });
-      if (!reduceMotion) {
-        ScrollTrigger.batch("[data-reveal]", {
-          start: "top 85%",
-          onEnter: (batch) => gsap.to(batch, { opacity: 1, y: 0, duration: 0.7, ease: "power3.out", stagger: 0.08 }),
-        });
-      }
-    });
-
-    return () => ctx.revert();
-  }, []);
-
-  const i18n: I18n = useMemo(
-    () => ({
-      lang,
-      setLang: setLangState,
-      dir: lang === "ar" ? "rtl" : "ltr",
-      t: (k) => (T[k] ? T[k][lang] : String(k)),
-    }),
-    [lang],
-  );
+  const i18n: I18n = useMemo(() => ({
+    lang,
+    setLang: setLangState,
+    dir: lang === "ar" ? "rtl" : "ltr",
+    t: (k) => (T[k] ? T[k][lang] : String(k)),
+  }), [lang]);
 
   return (
     <I18nCtx.Provider value={i18n}>
@@ -477,6 +328,7 @@ function Index() {
     </I18nCtx.Provider>
   );
 }
+
 
 /* -------------------- Floating Controls -------------------- */
 function FloatingControls({ theme, setTheme }: { theme: "dark" | "light"; setTheme: (t: "dark" | "light") => void }) {
@@ -507,10 +359,7 @@ function FloatingControls({ theme, setTheme }: { theme: "dark" | "light"; setThe
 function Hero() {
   const { t, lang } = useI18n();
   return (
-    <header
-      id="hero"
-      className="sticky top-0 z-0 flex min-h-screen flex-col overflow-hidden bg-ink text-ink-foreground will-change-transform"
-    >
+    <header className="relative overflow-hidden bg-ink text-ink-foreground">
       {/* Background Video */}
       <div className="absolute inset-0 overflow-hidden">
         <iframe
@@ -525,7 +374,7 @@ function Hero() {
       <div className="absolute inset-0 bg-mesh opacity-40" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--ink)_85%)]" />
 
-      <div className="relative mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 pt-6 pb-24 sm:pb-32">
+      <div className="relative mx-auto max-w-7xl px-6 pt-6 pb-24 sm:pb-32">
         <nav className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-xl bg-white/10 px-3 py-2 backdrop-blur ring-1 ring-white/15">
@@ -533,17 +382,14 @@ function Hero() {
             </div>
           </div>
           <div className="hidden items-center gap-8 text-sm text-white/70 md:flex">
-            <a href="#showreel" className="hover:text-white transition">
-              {t("nav_showreel")}
-            </a>
-            <a href="#booking" className="hover:text-white transition">
-              {t("nav_book")}
-            </a>
+            <a href="#showreel" className="hover:text-white transition">{t("nav_showreel")}</a>
+            <a href="#booking" className="hover:text-white transition">{t("nav_book")}</a>
           </div>
           <div aria-hidden className="h-8" />
+
         </nav>
 
-        <div className="mt-20 grid flex-1 items-center gap-12 lg:grid-cols-12">
+        <div className="mt-20 grid items-end gap-12 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs uppercase tracking-[0.2em] text-white/70 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -552,14 +398,12 @@ function Hero() {
             <h1 className="mt-6 text-5xl font-bold leading-[1.05] sm:text-6xl lg:text-7xl">
               {lang === "en" ? (
                 <>
-                  {t("hero_h1_a")} <span className="text-grad-brand">{t("hero_h1_b")}</span>
-                  <br />
+                  {t("hero_h1_a")} <span className="text-grad-brand">{t("hero_h1_b")}</span><br />
                   {t("hero_h1_c")} <span className="text-grad-brand">{t("hero_h1_d")}</span>.
                 </>
               ) : (
                 <>
-                  {t("hero_h1_a")} <span className="text-grad-brand">{t("hero_h1_b")}</span>
-                  <br />
+                  {t("hero_h1_a")} <span className="text-grad-brand">{t("hero_h1_b")}</span><br />
                   {t("hero_h1_c")} <span className="text-grad-brand">{t("hero_h1_d")}</span>.
                 </>
               )}
@@ -623,8 +467,8 @@ function Hero() {
                   <div className="text-white text-2xl font-bold drop-shadow-lg">{t("showreel_title")}</div>
                   <div className="mt-1 text-white/85 text-sm drop-shadow">{t("showreel_sub")}</div>
                   <div className="mt-4 flex items-center gap-2">
-                    {[0, 1, 2, 3].map((i) => (
-                      <div key={i} className={`h-1 flex-1 rounded-full ${i === 1 ? "bg-accent" : "bg-white/30"}`} />
+                    {[0,1,2,3].map(i => (
+                      <div key={i} className={`h-1 flex-1 rounded-full ${i===1?"bg-accent":"bg-white/30"}`} />
                     ))}
                   </div>
                 </div>
@@ -660,7 +504,7 @@ function Booking() {
   useEffect(() => {
     function onAdd(e: Event) {
       const det = (e as CustomEvent).detail as { id: string; name: string; price: number };
-      setStoreItems((prev) => (prev.find((p) => p.id === det.id) ? prev : [...prev, det]));
+      setStoreItems((prev) => prev.find((p) => p.id === det.id) ? prev : [...prev, det]);
       document.getElementById("booking")?.scrollIntoView({ behavior: "smooth" });
     }
     window.addEventListener("na:add-store", onAdd as EventListener);
@@ -668,7 +512,7 @@ function Booking() {
   }, []);
 
   const spacePrice = getSpacePrice(hours);
-  const addonItems = ADDONS.filter((a) => addons[a.id]);
+  const addonItems = ADDONS.filter(a => addons[a.id]);
   const addonsTotal = addonItems.reduce((sum, a) => sum + (a.perHour ? a.price * hours : a.price), 0);
   const insurance = addonItems.length > 0 ? 500 : 200;
   const storeTotal = storeItems.reduce((s, x) => s + x.price, 0);
@@ -686,15 +530,10 @@ function Booking() {
       .then((res) => {
         if (cancelled) return;
         if (res.valid) setPromoDiscount(res.discount);
-        else {
-          setPromoApplied(false);
-          setPromoDiscount(0);
-        }
+        else { setPromoApplied(false); setPromoDiscount(0); }
       })
       .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subtotal, promoApplied]);
 
@@ -721,10 +560,7 @@ function Booking() {
     }
   }
   function removePromo() {
-    setPromoApplied(false);
-    setPromoError(false);
-    setPromoInput("");
-    setPromoDiscount(0);
+    setPromoApplied(false); setPromoError(false); setPromoInput(""); setPromoDiscount(0);
   }
 
   const canNext = useMemo(() => {
@@ -765,27 +601,19 @@ function Booking() {
           <div className="p-6 sm:p-10">
             {step === 1 && (
               <Step1
-                date={date}
-                setDate={setDate}
-                startTime={startTime}
-                setStartTime={setStartTime}
-                hours={hours}
-                setHours={setHours}
+                date={date} setDate={setDate}
+                startTime={startTime} setStartTime={setStartTime}
+                hours={hours} setHours={setHours}
               />
             )}
             {step === 2 && <Step2 addons={addons} setAddons={setAddons} hours={hours} />}
             {step === 3 && <Step3 policies={policies} setPolicies={setPolicies} />}
             {step === 4 && (
               <Step4
-                payment={payment}
-                setPayment={setPayment}
-                total={total}
-                promoInput={promoInput}
-                setPromoInput={setPromoInput}
-                promoApplied={promoApplied}
-                promoError={promoError}
-                applyPromo={applyPromo}
-                removePromo={removePromo}
+                payment={payment} setPayment={setPayment} total={total}
+                promoInput={promoInput} setPromoInput={setPromoInput}
+                promoApplied={promoApplied} promoError={promoError}
+                applyPromo={applyPromo} removePromo={removePromo}
               />
             )}
           </div>
@@ -818,18 +646,11 @@ function Booking() {
         </div>
 
         <Summary
-          date={date}
-          startTime={startTime}
-          hours={hours}
-          spacePrice={spacePrice}
-          addonItems={addonItems}
-          addonsTotal={addonsTotal}
-          insurance={insurance}
-          total={total}
-          storeItems={storeItems}
-          removeStoreItem={(id: string) => setStoreItems((p) => p.filter((x) => x.id !== id))}
-          discount={discount}
-          promoApplied={promoApplied}
+          date={date} startTime={startTime} hours={hours}
+          spacePrice={spacePrice} addonItems={addonItems} addonsTotal={addonsTotal}
+          insurance={insurance} total={total}
+          storeItems={storeItems} removeStoreItem={(id: string) => setStoreItems((p) => p.filter(x => x.id !== id))}
+          discount={discount} promoApplied={promoApplied}
           longSession={longSession}
         />
       </div>
@@ -837,19 +658,14 @@ function Booking() {
       {confirmed && (
         <SuccessModal
           info={confirmed}
-          date={date}
-          startTime={startTime}
-          hours={hours}
-          total={total}
-          onClose={() => {
-            setConfirmed(null);
-            setStep(1);
-          }}
+          date={date} startTime={startTime} hours={hours} total={total}
+          onClose={() => { setConfirmed(null); setStep(1); }}
         />
       )}
     </section>
   );
 }
+
 
 /* -------------------- Stepper -------------------- */
 function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void }) {
@@ -863,10 +679,8 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
   return (
     <div className="relative">
       <div className="absolute left-0 right-0 top-6 h-px bg-border" />
-      <div
-        className="absolute left-0 top-6 h-px bg-accent transition-all duration-500"
-        style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
-      />
+      <div className="absolute left-0 top-6 h-px bg-accent transition-all duration-500"
+        style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }} />
       <ol className="relative grid grid-cols-4 gap-2">
         {steps.map((s) => {
           const active = step === s.n;
@@ -880,9 +694,7 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
               >
                 {done ? <Check className="h-5 w-5" /> : <s.icon className="h-5 w-5" />}
               </button>
-              <span
-                className={`mt-3 text-xs sm:text-sm font-medium ${active || done ? "text-foreground" : "text-muted-foreground"}`}
-              >
+              <span className={`mt-3 text-xs sm:text-sm font-medium ${active || done ? "text-foreground" : "text-muted-foreground"}`}>
                 {t(s.key)}
               </span>
             </li>
@@ -894,19 +706,17 @@ function Stepper({ step, setStep }: { step: number; setStep: (n: number) => void
 }
 
 /* -------------------- STEP 1 -------------------- */
-function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any) {
+function Step1({
+  date, setDate, startTime, setStartTime, hours, setHours,
+}: any) {
   const { t } = useI18n();
-  const [cursor, setCursor] = useState(() => {
-    const d = new Date();
-    d.setDate(1);
-    return d;
-  });
+  const [cursor, setCursor] = useState(() => { const d = new Date(); d.setDate(1); return d; });
 
   const now = new Date();
   const isToday = !!date && date.toDateString() === now.toDateString();
   const minStartHourToday = now.getHours() + 2 + (now.getMinutes() > 0 ? 1 : 0);
 
-  const reserved = useMemo(() => (date ? mockReservedSlots(date) : []), [date]);
+  const reserved = useMemo(() => date ? mockReservedSlots(date) : [], [date]);
 
   const slots = useMemo(() => {
     if (!date) return [];
@@ -924,7 +734,7 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
     return arr;
   }, [date, reserved, isToday, minStartHourToday]);
 
-  const allBlocked = slots.length > 0 && slots.every((s) => s.reserved || s.tooLate);
+  const allBlocked = slots.length > 0 && slots.every(s => s.reserved || s.tooLate);
 
   const maxHours = useMemo(() => {
     if (!date || !startTime) return MAX_HOURS;
@@ -940,15 +750,7 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
       <SectionHead eyebrowKey="s1_eyebrow" titleKey="s1_title" subKey="s1_sub" />
 
       <div className="grid gap-8 lg:grid-cols-2">
-        <CalendarGrid
-          cursor={cursor}
-          setCursor={setCursor}
-          selected={date}
-          onSelect={(d: Date) => {
-            setDate(d);
-            setStartTime(null);
-          }}
-        />
+        <CalendarGrid cursor={cursor} setCursor={setCursor} selected={date} onSelect={(d: Date) => { setDate(d); setStartTime(null); }} />
 
         <div className="space-y-6">
           <div>
@@ -970,41 +772,34 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
                         disabled={disabled}
                         title={s.reserved ? t("reserved") : s.tooLate ? t("lead_time_note") : ""}
                         className={`relative rounded-xl py-2.5 text-sm font-medium ring-1 transition overflow-hidden
-                          ${
-                            isSel
-                              ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
-                              : s.reserved
-                                ? "cursor-not-allowed bg-destructive/10 text-destructive/70 ring-destructive/30"
-                                : s.tooLate
-                                  ? "cursor-not-allowed bg-muted text-muted-foreground/50 ring-border line-through"
-                                  : "bg-background ring-border hover:ring-primary/50"
-                          }`}
+                          ${isSel ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                            : s.reserved ? "cursor-not-allowed bg-destructive/10 text-destructive/70 ring-destructive/30"
+                            : s.tooLate ? "cursor-not-allowed bg-muted text-muted-foreground/50 ring-border line-through"
+                            : "bg-background ring-border hover:ring-primary/50"}`}
                       >
                         {s.reserved && (
-                          <span
-                            aria-hidden
-                            className="pointer-events-none absolute inset-0 opacity-40"
-                            style={{
-                              backgroundImage:
-                                "repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 8px)",
-                            }}
-                          />
+                          <span aria-hidden className="pointer-events-none absolute inset-0 opacity-40"
+                            style={{ backgroundImage: "repeating-linear-gradient(45deg, currentColor 0 2px, transparent 2px 8px)" }} />
                         )}
                         <span className="relative">{s.time}</span>
                         {s.reserved && (
-                          <span className="relative block text-[9px] uppercase tracking-wider mt-0.5">
-                            {t("reserved")}
-                          </span>
+                          <span className="relative block text-[9px] uppercase tracking-wider mt-0.5">{t("reserved")}</span>
                         )}
                       </button>
                     );
                   })}
                 </div>
-                {isToday && <p className="mt-3 text-xs text-accent font-bold">⏱ {t("lead_time_note")}</p>}
-                {allBlocked && <p className="mt-2 text-xs text-destructive font-bold">{t("no_slots_today")}</p>}
+                {isToday && (
+                  <p className="mt-3 text-xs text-accent font-bold">⏱ {t("lead_time_note")}</p>
+                )}
+                {allBlocked && (
+                  <p className="mt-2 text-xs text-destructive font-bold">{t("no_slots_today")}</p>
+                )}
               </>
             )}
-            {date && <p className="mt-3 text-xs text-muted-foreground">{t("working_hours")}</p>}
+            {date && (
+              <p className="mt-3 text-xs text-muted-foreground">{t("working_hours")}</p>
+            )}
           </div>
 
           <div>
@@ -1013,9 +808,7 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
               <button
                 onClick={() => setHours(Math.max(1, hours - 1))}
                 className="grid h-12 w-12 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition"
-              >
-                −
-              </button>
+              >−</button>
               <div className="flex-1 rounded-2xl bg-muted/60 text-center py-3">
                 <div className="text-3xl font-bold text-primary">{hours}</div>
                 <div className="text-xs text-muted-foreground">{hours > 1 ? t("hours_unit") : t("hour_unit")}</div>
@@ -1023,25 +816,17 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
               <button
                 onClick={() => setHours(Math.min(maxHours, hours + 1))}
                 className="grid h-12 w-12 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition"
-              >
-                +
-              </button>
+              >+</button>
             </div>
             <div className="mt-3 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{t("total_space")}</span>
               <span className="flex items-center gap-2">
                 {showStrike && (
-                  <span className="text-muted-foreground line-through">
-                    {ORIGINAL_1H_PRICE} {t("sar")}
-                  </span>
+                  <span className="text-muted-foreground line-through">{ORIGINAL_1H_PRICE} {t("sar")}</span>
                 )}
-                <span className="font-bold text-primary text-base">
-                  {currentSpace} {t("sar")}
-                </span>
+                <span className="font-bold text-primary text-base">{currentSpace} {t("sar")}</span>
                 {showStrike && (
-                  <span className="rounded-full bg-accent/15 text-accent px-2 py-0.5 font-bold">
-                    -{ORIGINAL_1H_PRICE - currentSpace} {t("sar")}
-                  </span>
+                  <span className="rounded-full bg-accent/15 text-accent px-2 py-0.5 font-bold">-{ORIGINAL_1H_PRICE - currentSpace} {t("sar")}</span>
                 )}
               </span>
             </div>
@@ -1055,8 +840,7 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
                     key={h}
                     onClick={() => setHours(parseInt(h))}
                     className={`rounded-lg px-2 py-2 text-center ring-1 transition ${
-                      active
-                        ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                      active ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
                         : "bg-background ring-border hover:ring-primary/50"
                     }`}
                   >
@@ -1073,46 +857,37 @@ function Step1({ date, setDate, startTime, setStartTime, hours, setHours }: any)
   );
 }
 
+
 function CalendarGrid({ cursor, setCursor, selected, onSelect }: any) {
   const { lang } = useI18n();
   const year = cursor.getFullYear();
   const month = cursor.getMonth();
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = new Date(); today.setHours(0,0,0,0);
 
   const cells: (Date | null)[] = [];
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
 
   const monthName = cursor.toLocaleString(lang === "ar" ? "ar" : "en-US", { month: "long", year: "numeric" });
-  const dayLabels =
-    lang === "ar"
-      ? ["أحد", "إثن", "ثلا", "أرب", "خمي", "جمع", "سبت"]
-      : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const dayLabels = lang === "ar"
+    ? ["أحد","إثن","ثلا","أرب","خمي","جمع","سبت"]
+    : ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 
   return (
     <div className="rounded-2xl bg-muted/40 p-5 ring-1 ring-border">
       <div className="flex items-center justify-between">
-        <button
-          onClick={() => setCursor(new Date(year, month - 1, 1))}
-          className="grid h-9 w-9 place-items-center rounded-full hover:bg-background transition"
-        >
+        <button onClick={() => setCursor(new Date(year, month - 1, 1))} className="grid h-9 w-9 place-items-center rounded-full hover:bg-background transition">
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
         </button>
         <div className="font-bold text-primary">{monthName}</div>
-        <button
-          onClick={() => setCursor(new Date(year, month + 1, 1))}
-          className="grid h-9 w-9 place-items-center rounded-full hover:bg-background transition"
-        >
+        <button onClick={() => setCursor(new Date(year, month + 1, 1))} className="grid h-9 w-9 place-items-center rounded-full hover:bg-background transition">
           <ChevronRight className="h-4 w-4 rtl:rotate-180" />
         </button>
       </div>
       <div className="mt-4 grid grid-cols-7 gap-1 text-center text-[10px] uppercase tracking-wider text-muted-foreground">
-        {dayLabels.map((d) => (
-          <div key={d}>{d}</div>
-        ))}
+        {dayLabels.map(d => <div key={d}>{d}</div>)}
       </div>
       <div className="mt-2 grid grid-cols-7 gap-1">
         {cells.map((d, i) => {
@@ -1157,10 +932,7 @@ function Step2({ addons, setAddons, hours }: any) {
           <p className="mt-1 text-xs text-muted-foreground">{t("included_sub")}</p>
           <ul className="mt-5 space-y-3">
             {INCLUDED.map((it) => (
-              <li
-                key={it.key}
-                className="flex items-center gap-3 rounded-xl bg-background/60 px-4 py-3 ring-1 ring-border"
-              >
+              <li key={it.key} className="flex items-center gap-3 rounded-xl bg-background/60 px-4 py-3 ring-1 ring-border">
                 <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
                   <it.icon className="h-4 w-4" />
                 </div>
@@ -1185,20 +957,16 @@ function Step2({ addons, setAddons, hours }: any) {
               const lineTotal = a.perHour ? a.price * hours : a.price;
               return (
                 <li key={a.id}>
-                  <label
-                    className={`flex cursor-pointer items-center gap-4 rounded-xl px-4 py-3 ring-1 transition
-                    ${checked ? "bg-accent/10 ring-accent" : "bg-background ring-border hover:ring-primary/40"}`}
-                  >
+                  <label className={`flex cursor-pointer items-center gap-4 rounded-xl px-4 py-3 ring-1 transition
+                    ${checked ? "bg-accent/10 ring-accent" : "bg-background ring-border hover:ring-primary/40"}`}>
                     <input
                       type="checkbox"
                       className="sr-only"
                       checked={checked}
                       onChange={(e) => setAddons({ ...addons, [a.id]: e.target.checked })}
                     />
-                    <div
-                      className={`grid h-6 w-6 place-items-center rounded-md ring-1 transition
-                      ${checked ? "bg-accent text-accent-foreground ring-accent" : "bg-background ring-border"}`}
-                    >
+                    <div className={`grid h-6 w-6 place-items-center rounded-md ring-1 transition
+                      ${checked ? "bg-accent text-accent-foreground ring-accent" : "bg-background ring-border"}`}>
                       {checked && <Check className="h-4 w-4" />}
                     </div>
                     <div className="grid h-9 w-9 place-items-center rounded-lg bg-muted text-primary">
@@ -1208,9 +976,7 @@ function Step2({ addons, setAddons, hours }: any) {
                       <div className="text-sm font-medium truncate">{t(a.key)}</div>
                     </div>
                     <div className="text-end shrink-0">
-                      <div className="text-sm font-bold text-primary">
-                        +{a.price} {t("sar")}
-                      </div>
+                      <div className="text-sm font-bold text-primary">+{a.price} {t("sar")}</div>
                       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                         {a.perHour ? `× ${hours}h = ${lineTotal}` : t("flat")}
                       </div>
@@ -1223,14 +989,10 @@ function Step2({ addons, setAddons, hours }: any) {
         </div>
       </div>
 
-      <div
-        className={`relative overflow-hidden rounded-2xl p-6 ring-1 transition
-        ${anyAddon ? "bg-accent/10 ring-accent" : "bg-primary/5 ring-primary/20"}`}
-      >
+      <div className={`relative overflow-hidden rounded-2xl p-6 ring-1 transition
+        ${anyAddon ? "bg-accent/10 ring-accent" : "bg-primary/5 ring-primary/20"}`}>
         <div className="flex items-center gap-4">
-          <div
-            className={`grid h-12 w-12 place-items-center rounded-xl ${anyAddon ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"}`}
-          >
+          <div className={`grid h-12 w-12 place-items-center rounded-xl ${anyAddon ? "bg-accent text-accent-foreground" : "bg-primary text-primary-foreground"}`}>
             <ShieldCheck className="h-6 w-6" />
           </div>
           <div className="flex-1 min-w-0">
@@ -1240,9 +1002,7 @@ function Step2({ addons, setAddons, hours }: any) {
             </div>
           </div>
           <div className="text-end shrink-0">
-            <div className="text-2xl font-bold text-primary">
-              {anyAddon ? 500 : 200} {t("sar")}
-            </div>
+            <div className="text-2xl font-bold text-primary">{anyAddon ? 500 : 200} {t("sar")}</div>
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("refundable")}</div>
           </div>
         </div>
@@ -1272,22 +1032,13 @@ function Step3({ policies, setPolicies }: any) {
         {POLICY_KEYS.map((p, i) => {
           const checked = !!policies[i];
           return (
-            <label
-              key={i}
-              className={`block cursor-pointer rounded-2xl p-5 ring-1 transition
-              ${checked ? "bg-primary/5 ring-primary" : "bg-background ring-border hover:ring-primary/40"}`}
-            >
+            <label key={i} className={`block cursor-pointer rounded-2xl p-5 ring-1 transition
+              ${checked ? "bg-primary/5 ring-primary" : "bg-background ring-border hover:ring-primary/40"}`}>
               <div className="flex items-start gap-4">
-                <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={checked}
-                  onChange={(e) => setPolicies({ ...policies, [i]: e.target.checked })}
-                />
-                <div
-                  className={`mt-1 grid h-6 w-6 place-items-center rounded-md ring-1 shrink-0 transition
-                  ${checked ? "bg-primary text-primary-foreground ring-primary" : "bg-background ring-border"}`}
-                >
+                <input type="checkbox" className="sr-only" checked={checked}
+                  onChange={(e) => setPolicies({ ...policies, [i]: e.target.checked })} />
+                <div className={`mt-1 grid h-6 w-6 place-items-center rounded-md ring-1 shrink-0 transition
+                  ${checked ? "bg-primary text-primary-foreground ring-primary" : "bg-background ring-border"}`}>
                   {checked && <Check className="h-4 w-4" />}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1304,17 +1055,7 @@ function Step3({ policies, setPolicies }: any) {
 }
 
 /* -------------------- STEP 4 -------------------- */
-function Step4({
-  payment,
-  setPayment,
-  total,
-  promoInput,
-  setPromoInput,
-  promoApplied,
-  promoError,
-  applyPromo,
-  removePromo,
-}: any) {
+function Step4({ payment, setPayment, total, promoInput, setPromoInput, promoApplied, promoError, applyPromo, removePromo }: any) {
   const { t } = useI18n();
   const tabs = [
     { id: "apple", key: "pay_apple" as const, icon: Smartphone },
@@ -1339,17 +1080,11 @@ function Step4({
             className="flex-1 rounded-xl bg-background ring-1 ring-border px-4 py-3 text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-primary disabled:opacity-60"
           />
           {promoApplied ? (
-            <button
-              onClick={removePromo}
-              className="rounded-xl bg-muted ring-1 ring-border px-5 text-sm font-bold text-foreground hover:bg-destructive/10 hover:text-destructive transition"
-            >
+            <button onClick={removePromo} className="rounded-xl bg-muted ring-1 ring-border px-5 text-sm font-bold text-foreground hover:bg-destructive/10 hover:text-destructive transition">
               {t("coupon_remove")}
             </button>
           ) : (
-            <button
-              onClick={applyPromo}
-              className="rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition"
-            >
+            <button onClick={applyPromo} className="rounded-xl bg-primary px-5 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition">
               {t("coupon_apply")}
             </button>
           )}
@@ -1368,12 +1103,9 @@ function Step4({
         {tabs.map((tb) => {
           const active = payment === tb.id;
           return (
-            <button
-              key={tb.id}
-              onClick={() => setPayment(tb.id)}
+            <button key={tb.id} onClick={() => setPayment(tb.id)}
               className={`flex flex-col items-center gap-2 rounded-2xl px-4 py-5 ring-1 transition
-                ${active ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/40"}`}
-            >
+                ${active ? "bg-primary text-primary-foreground ring-primary shadow-elegant" : "bg-background ring-border hover:ring-primary/40"}`}>
               <tb.icon className="h-6 w-6" />
               <span className="text-xs font-bold text-center">{t(tb.key)}</span>
             </button>
@@ -1391,6 +1123,7 @@ function Step4({
   );
 }
 
+
 function ApplePayMock({ total }: { total: number }) {
   const { t } = useI18n();
   return (
@@ -1399,7 +1132,9 @@ function ApplePayMock({ total }: { total: number }) {
         <Smartphone className="h-8 w-8" />
       </div>
       <p className="mt-4 text-sm text-muted-foreground">{t("apple_hint").replace("{n}", String(total))}</p>
-      <button className="mt-5 w-full rounded-xl bg-foreground text-background py-3 font-bold">{t("apple_btn")}</button>
+      <button className="mt-5 w-full rounded-xl bg-foreground text-background py-3 font-bold">
+        {t("apple_btn")}
+      </button>
     </div>
   );
 }
@@ -1411,27 +1146,17 @@ function SplitMock({ total, brand, color }: { total: number; brand: string; colo
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">
-            {brand} · {t("split_label")}
-          </div>
-          <div className="text-2xl font-bold text-primary">
-            {split} {t("sar")} <span className="text-sm font-medium text-muted-foreground">{t("split_payments")}</span>
-          </div>
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">{brand} · {t("split_label")}</div>
+          <div className="text-2xl font-bold text-primary">{split} {t("sar")} <span className="text-sm font-medium text-muted-foreground">{t("split_payments")}</span></div>
         </div>
-        <div className="rounded-full px-3 py-1 text-xs font-bold text-white" style={{ background: color }}>
-          {t("no_interest")}
-        </div>
+        <div className="rounded-full px-3 py-1 text-xs font-bold text-white" style={{ background: color }}>{t("no_interest")}</div>
       </div>
       <div className="mt-5 grid grid-cols-4 gap-2">
-        {[0, 1, 2, 3].map((i) => (
+        {[0,1,2,3].map(i => (
           <div key={i} className="rounded-xl bg-background p-3 ring-1 ring-border text-center">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {t("payment_n")} {i + 1}
-            </div>
-            <div className="mt-1 font-bold text-primary">
-              {split} {t("sar")}
-            </div>
-            <div className="text-[10px] text-muted-foreground">{i === 0 ? t("today") : `+${i * 30}d`}</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("payment_n")} {i+1}</div>
+            <div className="mt-1 font-bold text-primary">{split} {t("sar")}</div>
+            <div className="text-[10px] text-muted-foreground">{i === 0 ? t("today") : `+${i*30}d`}</div>
           </div>
         ))}
       </div>
@@ -1459,79 +1184,35 @@ function BankTransfer({ total }: { total: number }) {
           <div className="text-xs text-muted-foreground">{t("upload_hint")}</div>
         </div>
         <input type="file" className="sr-only" onChange={(e) => setFile(e.target.files?.[0]?.name ?? null)} />
-        <span className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">
-          {t("choose_file")}
-        </span>
+        <span className="rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground">{t("choose_file")}</span>
       </label>
     </div>
   );
 }
 
-function Info({
-  label,
-  value,
-  mono,
-  highlight,
-}: {
-  label: string;
-  value: string;
-  mono?: boolean;
-  highlight?: boolean;
-}) {
+function Info({ label, value, mono, highlight }: { label: string; value: string; mono?: boolean; highlight?: boolean }) {
   return (
     <div className={`rounded-xl p-4 ring-1 ${highlight ? "bg-accent/10 ring-accent" : "bg-background ring-border"}`}>
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div
-        className={`mt-1 font-bold ${highlight ? "text-accent text-lg" : "text-foreground"} ${mono ? "font-mono text-sm" : ""}`}
-      >
-        {value}
-      </div>
+      <div className={`mt-1 font-bold ${highlight ? "text-accent text-lg" : "text-foreground"} ${mono ? "font-mono text-sm" : ""}`}>{value}</div>
     </div>
   );
 }
 
 /* -------------------- SUMMARY -------------------- */
-function Summary({
-  date,
-  startTime,
-  hours,
-  spacePrice,
-  addonItems,
-  addonsTotal,
-  insurance,
-  total,
-  storeItems = [],
-  removeStoreItem,
-  discount = 0,
-  promoApplied = false,
-  longSession = false,
-}: any) {
+function Summary({ date, startTime, hours, spacePrice, addonItems, addonsTotal, insurance, total, storeItems = [], removeStoreItem, discount = 0, promoApplied = false, longSession = false }: any) {
   const { t, lang } = useI18n();
   const showStrike1h = hours === 1;
   return (
     <aside className="lg:sticky lg:top-6 h-fit rounded-3xl bg-ink text-ink-foreground shadow-elegant overflow-hidden">
       <div className="relative p-6 bg-grad-brand">
         <div className="text-[10px] uppercase tracking-[0.25em] text-white/80">{t("live_estimate")}</div>
-        <div className="mt-1 text-3xl font-bold text-white">
-          {total} <span className="text-base font-medium text-white/80">{t("sar")}</span>
-        </div>
+        <div className="mt-1 text-3xl font-bold text-white">{total} <span className="text-base font-medium text-white/80">{t("sar")}</span></div>
         <div className="mt-1 text-xs text-white/70">{t("vat_inclusive")}</div>
       </div>
 
       <div className="p-6 space-y-5 text-sm">
-        <Row
-          label={t("date")}
-          value={
-            date
-              ? date.toLocaleDateString(lang === "ar" ? "ar" : "en-GB", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })
-              : "—"
-          }
-        />
+        <Row label={t("date")} value={date ? date.toLocaleDateString(lang === "ar" ? "ar" : "en-GB", { weekday:"short", day:"numeric", month:"short", year:"numeric" }) : "—"} />
         <Row label={t("start")} value={startTime ?? "—"} />
         <Row label={t("hours_short")} value={`${hours} ${t("hr")}`} />
 
@@ -1550,18 +1231,12 @@ function Summary({
         <Divider />
 
         <div className="flex items-start justify-between gap-3">
-          <div className="text-white/80">
-            {t("space_total_label")} ({hours}h)
-          </div>
+          <div className="text-white/80">{t("space_total_label")} ({hours}h)</div>
           <div className="text-end">
             {showStrike1h && (
-              <div className="text-[11px] text-white/40 line-through">
-                {ORIGINAL_1H_PRICE} {t("sar")}
-              </div>
+              <div className="text-[11px] text-white/40 line-through">{ORIGINAL_1H_PRICE} {t("sar")}</div>
             )}
-            <div className="font-bold text-white">
-              {spacePrice} {t("sar")}
-            </div>
+            <div className="font-bold text-white">{spacePrice} {t("sar")}</div>
           </div>
         </div>
 
@@ -1574,17 +1249,13 @@ function Summary({
                 {addonItems.map((a: AddOn) => (
                   <li key={a.id} className="flex items-center justify-between gap-2">
                     <span className="text-white/80 truncate">{t(a.key)}</span>
-                    <span className="font-bold shrink-0">
-                      {a.perHour ? a.price * hours : a.price} {t("sar")}
-                    </span>
+                    <span className="font-bold shrink-0">{a.perHour ? a.price * hours : a.price} {t("sar")}</span>
                   </li>
                 ))}
               </ul>
               <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
                 <span className="text-white/80">{t("addons_total")}</span>
-                <span className="font-bold">
-                  {addonsTotal} {t("sar")}
-                </span>
+                <span className="font-bold">{addonsTotal} {t("sar")}</span>
               </div>
             </div>
           </>
@@ -1600,15 +1271,9 @@ function Summary({
                   <li key={s.id} className="flex items-center justify-between gap-2">
                     <span className="text-white/80 truncate">{s.name}</span>
                     <span className="flex items-center gap-2 shrink-0">
-                      <span className="font-bold">
-                        {s.price} {t("sar")}
-                      </span>
+                      <span className="font-bold">{s.price} {t("sar")}</span>
                       {removeStoreItem && (
-                        <button
-                          onClick={() => removeStoreItem(s.id)}
-                          className="text-white/40 hover:text-destructive transition"
-                          aria-label="remove"
-                        >
+                        <button onClick={() => removeStoreItem(s.id)} className="text-white/40 hover:text-destructive transition" aria-label="remove">
                           <X className="h-3.5 w-3.5" />
                         </button>
                       )}
@@ -1621,22 +1286,14 @@ function Summary({
         )}
 
         <Divider />
-        <Row
-          label={t("refundable_insurance")}
-          value={`${insurance} ${t("sar")}`}
-          sub={insurance === 500 ? t("premium_tier") : t("standard_tier")}
-        />
+        <Row label={t("refundable_insurance")} value={`${insurance} ${t("sar")}`} sub={insurance === 500 ? t("premium_tier") : t("standard_tier")} />
 
         {promoApplied && discount > 0 && (
           <>
             <Divider />
             <div className="flex items-center justify-between text-accent font-bold">
-              <span className="inline-flex items-center gap-2">
-                <Sparkles className="h-4 w-4" /> {t("discount")} (NEWART10)
-              </span>
-              <span>
-                −{discount} {t("sar")}
-              </span>
+              <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4" /> {t("discount")} (NEWART10)</span>
+              <span>−{discount} {t("sar")}</span>
             </div>
           </>
         )}
@@ -1645,20 +1302,17 @@ function Summary({
         <div className="flex items-end justify-between">
           <div>
             <div className="text-[10px] uppercase tracking-wider text-white/50">{t("final_total")}</div>
-            <div className="text-2xl font-bold text-white">
-              {total} {t("sar")}
-            </div>
+            <div className="text-2xl font-bold text-white">{total} {t("sar")}</div>
           </div>
           <div className="flex items-center gap-1 text-accent">
-            {[0, 1, 2, 3, 4].map((i) => (
-              <Star key={i} className="h-4 w-4 fill-accent" />
-            ))}
+            {[0,1,2,3,4].map(i => <Star key={i} className="h-4 w-4 fill-accent" />)}
           </div>
         </div>
       </div>
     </aside>
   );
 }
+
 
 function Row({ label, value, bold, sub }: { label: string; value: string; bold?: boolean; sub?: string }) {
   return (
@@ -1672,23 +1326,13 @@ function Row({ label, value, bold, sub }: { label: string; value: string; bold?:
   );
 }
 
-function Divider() {
-  return <div className="h-px bg-white/10" />;
-}
+function Divider() { return <div className="h-px bg-white/10" />; }
 
 /* -------------------- Helpers -------------------- */
-function SectionHead({
-  eyebrowKey,
-  titleKey,
-  subKey,
-}: {
-  eyebrowKey: keyof typeof T;
-  titleKey: keyof typeof T;
-  subKey: keyof typeof T;
-}) {
+function SectionHead({ eyebrowKey, titleKey, subKey }: { eyebrowKey: keyof typeof T; titleKey: keyof typeof T; subKey: keyof typeof T }) {
   const { t } = useI18n();
   return (
-    <div data-reveal>
+    <div>
       <div className="text-[11px] uppercase tracking-[0.25em] font-bold text-accent">{t(eyebrowKey)}</div>
       <h3 className="mt-2 text-2xl sm:text-3xl font-bold text-primary">{t(titleKey)}</h3>
       <p className="mt-1 text-sm text-muted-foreground">{t(subKey)}</p>
@@ -1711,10 +1355,7 @@ function SuccessModal({ info, date, startTime, hours, total, onClose }: any) {
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/60 backdrop-blur p-4 animate-in fade-in">
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-card shadow-elegant ring-1 ring-border animate-in zoom-in-95">
-        <button
-          onClick={onClose}
-          className="absolute end-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition"
-        >
+        <button onClick={onClose} className="absolute end-4 top-4 grid h-9 w-9 place-items-center rounded-full bg-muted text-foreground hover:bg-accent hover:text-accent-foreground transition">
           <X className="h-4 w-4" />
         </button>
         <div className="bg-grad-brand p-8 text-center text-white">
@@ -1730,21 +1371,13 @@ function SuccessModal({ info, date, startTime, hours, total, onClose }: any) {
             <div className="mt-1 text-2xl font-bold text-primary font-mono">{info.ref}</div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <Box
-              label={t("date")}
-              value={
-                date ? date.toLocaleDateString(lang === "ar" ? "ar" : "en-GB", { day: "numeric", month: "short" }) : "—"
-              }
-            />
+            <Box label={t("date")} value={date ? date.toLocaleDateString(lang === "ar" ? "ar" : "en-GB", { day:"numeric", month:"short" }) : "—"} />
             <Box label={t("start")} value={startTime ?? "—"} />
             <Box label={t("duration")} value={`${hours} ${hours > 1 ? t("hours_unit") : t("hour_unit")}`} />
             <Box label={t("total")} value={`${total} ${t("sar")}`} accent />
           </div>
           <p className="text-center text-xs text-muted-foreground pt-2">{t("confirmation_sent")}</p>
-          <button
-            onClick={onClose}
-            className="w-full rounded-full bg-primary py-3 font-bold text-primary-foreground hover:bg-primary/90 transition"
-          >
+          <button onClick={onClose} className="w-full rounded-full bg-primary py-3 font-bold text-primary-foreground hover:bg-primary/90 transition">
             {t("done")}
           </button>
         </div>
@@ -1770,7 +1403,7 @@ function Footer() {
   return (
     <footer className="bg-ink text-ink-foreground">
       <div className="mx-auto max-w-7xl px-6 py-14 grid gap-10 md:grid-cols-3">
-        <div data-reveal>
+        <div>
           <div className="inline-block rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/15">
             <img src={logoAsset.url} alt="NewArt Studio" className="h-8 w-auto" />
           </div>
@@ -1778,8 +1411,7 @@ function Footer() {
           <div className="mt-5 flex items-center gap-3">
             <a
               href="https://www.instagram.com/newartksa/"
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               aria-label="Instagram"
               className="grid h-10 w-10 place-items-center rounded-full bg-white/10 ring-1 ring-white/15 hover:bg-accent hover:text-accent-foreground transition"
             >
@@ -1787,8 +1419,7 @@ function Footer() {
             </a>
             <a
               href={`https://api.whatsapp.com/send?phone=${phoneDigits}`}
-              target="_blank"
-              rel="noopener noreferrer"
+              target="_blank" rel="noopener noreferrer"
               aria-label="WhatsApp"
               className="grid h-10 w-10 place-items-center rounded-full bg-white/10 ring-1 ring-white/15 hover:bg-accent hover:text-accent-foreground transition"
             >
@@ -1797,28 +1428,17 @@ function Footer() {
           </div>
         </div>
 
-        <div data-reveal className="text-sm space-y-3">
+        <div className="text-sm space-y-3">
           <div className="text-white font-bold uppercase tracking-wider text-xs">{t("ft_contact")}</div>
-          <a
-            href="mailto:info@newartksa.com"
-            className="flex items-center gap-3 text-white/75 hover:text-white transition"
-          >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10">
-              <Mail className="h-4 w-4" />
-            </span>
+          <a href="mailto:info@newartksa.com" className="flex items-center gap-3 text-white/75 hover:text-white transition">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10"><Mail className="h-4 w-4" /></span>
             <span className="min-w-0">
               <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_email")}</div>
               <div className="truncate">info@newartksa.com</div>
             </span>
           </a>
-          <a
-            href={`tel:${phone}`}
-            className="flex items-center gap-3 text-white/75 hover:text-white transition"
-            dir="ltr"
-          >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10">
-              <Phone className="h-4 w-4" />
-            </span>
+          <a href={`tel:${phone}`} className="flex items-center gap-3 text-white/75 hover:text-white transition" dir="ltr">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10"><Phone className="h-4 w-4" /></span>
             <span className="min-w-0">
               <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_phone")}</div>
               <div>{phone}</div>
@@ -1826,14 +1446,10 @@ function Footer() {
           </a>
           <a
             href={`https://api.whatsapp.com/send?phone=${phoneDigits}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 text-white/75 hover:text-white transition"
-            dir="ltr"
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-3 text-white/75 hover:text-white transition" dir="ltr"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10">
-              <MessageCircle className="h-4 w-4" />
-            </span>
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10"><MessageCircle className="h-4 w-4" /></span>
             <span className="min-w-0">
               <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_whatsapp")}</div>
               <div>{phone}</div>
@@ -1841,17 +1457,14 @@ function Footer() {
           </a>
         </div>
 
-        <div data-reveal className="text-sm space-y-3">
+        <div className="text-sm space-y-3">
           <div className="text-white font-bold uppercase tracking-wider text-xs">{t("ft_address")}</div>
           <a
             href="https://maps.app.goo.gl/VFGDzJsjJYUyuRbW8"
-            target="_blank"
-            rel="noopener noreferrer"
+            target="_blank" rel="noopener noreferrer"
             className="flex items-start gap-3 text-white/75 hover:text-white transition"
           >
-            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 shrink-0">
-              <MapPin className="h-4 w-4" />
-            </span>
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-white/10 shrink-0"><MapPin className="h-4 w-4" /></span>
             <span className="min-w-0">
               <div className="text-[10px] uppercase tracking-wider text-white/50">{t("ft_address")}</div>
               <div>{t("ft_address_value")}</div>
@@ -1860,7 +1473,9 @@ function Footer() {
           </a>
         </div>
       </div>
-      <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">{t("ft_rights")}</div>
+      <div className="border-t border-white/10 py-5 text-center text-xs text-white/50">
+        {t("ft_rights")}
+      </div>
     </footer>
   );
 }
@@ -1880,25 +1495,19 @@ function Portfolio() {
     { h: "h-64", grad: "from-accent/70 via-accent to-primary/60", icon: Volume2, label: "Music" },
   ];
   return (
-    <section id="portfolio" className="relative z-10 bg-background mx-auto max-w-7xl px-6 py-20 sm:py-24">
-      <div data-reveal className="mb-10 max-w-2xl">
+    <section id="portfolio" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-24">
+      <div className="mb-10 max-w-2xl">
         <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("pf_eyebrow")}</div>
         <h2 className="mt-3 text-3xl sm:text-4xl font-bold text-primary">{t("pf_title")}</h2>
         <p className="mt-3 text-muted-foreground">{t("pf_sub")}</p>
       </div>
       <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
         {tiles.map((tile, i) => (
-          <div
-            key={i}
-            data-reveal
-            className={`mb-4 break-inside-avoid group relative overflow-hidden rounded-2xl ring-1 ring-border ${tile.h}`}
-          >
+          <div key={i} className={`mb-4 break-inside-avoid group relative overflow-hidden rounded-2xl ring-1 ring-border ${tile.h}`}>
             <div className={`absolute inset-0 bg-gradient-to-br ${tile.grad}`} />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_60%)]" />
-            <div
-              className="absolute inset-0 opacity-20 mix-blend-overlay"
-              style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 14px)" }}
-            />
+            <div className="absolute inset-0 opacity-20 mix-blend-overlay"
+              style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 14px)" }} />
             <div className="absolute inset-x-0 bottom-0 p-4 text-white">
               <div className="flex items-center gap-2">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/20">
@@ -1924,30 +1533,18 @@ function StoreServices() {
   const [added, setAdded] = useState<Record<string, boolean>>({});
   const services = [
     {
-      id: "personal",
-      title: t("store_personal_t"),
-      desc: t("store_personal_d"),
-      price: 1200,
-      icon: Camera,
-      accent: "from-primary to-primary/70",
+      id: "personal", title: t("store_personal_t"), desc: t("store_personal_d"),
+      price: 1200, icon: Camera, accent: "from-primary to-primary/70",
       features: [t("store_f_pers_1"), t("store_f_pers_2"), t("store_f_pers_3")],
     },
     {
-      id: "product",
-      title: t("store_product_t"),
-      desc: t("store_product_d"),
-      price: 1800,
-      icon: Aperture,
-      accent: "from-accent to-accent/70",
+      id: "product", title: t("store_product_t"), desc: t("store_product_d"),
+      price: 1800, icon: Aperture, accent: "from-accent to-accent/70",
       features: [t("store_f_prod_1"), t("store_f_prod_2"), t("store_f_prod_3")],
     },
     {
-      id: "podcast",
-      title: t("store_podcast_t"),
-      desc: t("store_podcast_d"),
-      price: 2200,
-      icon: Mic2,
-      accent: "from-primary via-accent to-primary",
+      id: "podcast", title: t("store_podcast_t"), desc: t("store_podcast_d"),
+      price: 2200, icon: Mic2, accent: "from-primary via-accent to-primary",
       features: [t("store_f_pod_1"), t("store_f_pod_2"), t("store_f_pod_3")],
     },
   ];
@@ -1960,7 +1557,7 @@ function StoreServices() {
 
   return (
     <section id="services" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-28">
-      <div data-reveal className="mb-12 max-w-2xl">
+      <div className="mb-12 max-w-2xl">
         <div className="text-xs uppercase tracking-[0.25em] text-accent font-bold">{t("store_eyebrow")}</div>
         <h2 className="mt-3 text-4xl sm:text-5xl font-bold text-primary">{t("store_title")}</h2>
         <p className="mt-4 text-muted-foreground">{t("store_sub")}</p>
@@ -1968,11 +1565,7 @@ function StoreServices() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {services.map((s) => (
-          <article
-            key={s.id}
-            data-reveal
-            className="group relative flex flex-col overflow-hidden rounded-3xl bg-card ring-1 ring-border shadow-soft hover:shadow-elegant transition"
-          >
+          <article key={s.id} className="group relative flex flex-col overflow-hidden rounded-3xl bg-card ring-1 ring-border shadow-soft hover:shadow-elegant transition">
             <div className={`relative h-40 bg-gradient-to-br ${s.accent} overflow-hidden`}>
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.3),transparent_60%)]" />
               <div className="absolute inset-0 grid place-items-center">
@@ -1996,27 +1589,16 @@ function StoreServices() {
               <div className="mt-6 flex items-end justify-between gap-3 pt-4 border-t border-border">
                 <div>
                   <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{t("store_from")}</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {s.price} <span className="text-sm font-medium text-muted-foreground">{t("sar")}</span>
-                  </div>
+                  <div className="text-2xl font-bold text-primary">{s.price} <span className="text-sm font-medium text-muted-foreground">{t("sar")}</span></div>
                 </div>
                 <button
                   onClick={() => addService(s)}
                   className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-xs font-bold transition shadow-elegant ${
-                    added[s.id]
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-accent text-accent-foreground hover:scale-[1.02]"
+                    added[s.id] ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground hover:scale-[1.02]"
                   }`}
                 >
-                  {added[s.id] ? (
-                    <>
-                      <Check className="h-4 w-4" /> {t("store_added")}
-                    </>
-                  ) : (
-                    <>
-                      {t("store_add")} <ChevronRight className="h-4 w-4 rtl:rotate-180" />
-                    </>
-                  )}
+                  {added[s.id] ? (<><Check className="h-4 w-4" /> {t("store_added")}</>)
+                    : (<>{t("store_add")} <ChevronRight className="h-4 w-4 rtl:rotate-180" /></>)}
                 </button>
               </div>
             </div>
@@ -2041,3 +1623,4 @@ function BookingFAB() {
     </a>
   );
 }
+
