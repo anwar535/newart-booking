@@ -316,13 +316,15 @@ function Index() {
 
   return (
     <I18nCtx.Provider value={i18n}>
-      <div className="min-h-screen bg-background text-foreground" dir={i18n.dir}>
+      <div className="min-h-screen bg-background text-foreground isolate" dir={i18n.dir}>
         <FloatingControls theme={theme} setTheme={setTheme} />
         <Hero />
-        <Portfolio />
-        <Booking />
-        <StoreServices />
-        <Footer />
+        <main className="relative z-10 bg-background">
+          <Portfolio />
+          <Booking />
+          <StoreServices />
+          <Footer />
+        </main>
         <BookingFAB />
       </div>
     </I18nCtx.Provider>
