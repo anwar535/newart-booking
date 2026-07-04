@@ -7,6 +7,14 @@ import {
   PlayCircle, MapPin, Star, Sun, Moon, Languages, Mail, Phone, MessageCircle, Instagram,
 } from "lucide-react";
 import logoAsset from "@/assets/newart-logo.png.asset.json";
+import img001 from "@/assets/001.png.asset.json";
+import img002 from "@/assets/002.png.asset.json";
+import img003 from "@/assets/003.png.asset.json";
+import img004 from "@/assets/004.png.asset.json";
+import img005 from "@/assets/005.png.asset.json";
+import img006 from "@/assets/006.png.asset.json";
+import img007 from "@/assets/007.jpg.asset.json";
+import img008 from "@/assets/008.jpg.asset.json";
 import { useServerFn } from "@tanstack/react-start";
 import { validatePromo } from "@/lib/promo.functions";
 
@@ -1492,14 +1500,7 @@ function Footer() {
 }
 
 /* -------------------- Portfolio (masonry) -------------------- */
-import img001 from "@/assets/001.png.asset.json";
-import img002 from "@/assets/002.png.asset.json";
-import img003 from "@/assets/003.png.asset.json";
-import img004 from "@/assets/004.png.asset.json";
-import img005 from "@/assets/005.png.asset.json";
-import img006 from "@/assets/006.png.asset.json";
-import img007 from "@/assets/007.jpg.asset.json";
-import img008 from "@/assets/008.jpg.asset.json";
+
 
 function Portfolio() {
   const { t } = useI18n();
