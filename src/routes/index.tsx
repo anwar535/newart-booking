@@ -1491,19 +1491,27 @@ function Footer() {
   );
 }
 
-/* -------------------- Portfolio (masonry placeholders) -------------------- */
+/* -------------------- Portfolio (masonry) -------------------- */
+import img001 from "@/assets/001.png.asset.json";
+import img002 from "@/assets/002.png.asset.json";
+import img003 from "@/assets/003.png.asset.json";
+import img004 from "@/assets/004.png.asset.json";
+import img005 from "@/assets/005.png.asset.json";
+import img006 from "@/assets/006.png.asset.json";
+import img007 from "@/assets/007.jpg.asset.json";
+import img008 from "@/assets/008.jpg.asset.json";
+
 function Portfolio() {
   const { t } = useI18n();
-  // Heights tuned for an organic masonry feel
   const tiles = [
-    { h: "h-64", grad: "from-primary via-primary/70 to-accent/60", icon: Camera, label: "Editorial" },
-    { h: "h-48", grad: "from-accent via-accent/70 to-primary/60", icon: Aperture, label: "Product" },
-    { h: "h-72", grad: "from-primary/80 via-accent/40 to-primary", icon: Lightbulb, label: "Beauty" },
-    { h: "h-56", grad: "from-accent/80 via-primary/60 to-primary", icon: Mic2, label: "Podcast" },
-    { h: "h-60", grad: "from-primary via-accent/60 to-primary/70", icon: Palette, label: "Fashion" },
-    { h: "h-44", grad: "from-accent via-primary/60 to-accent/70", icon: Monitor, label: "Tech" },
-    { h: "h-52", grad: "from-primary/70 via-primary to-accent/50", icon: Sparkles, label: "Lifestyle" },
-    { h: "h-64", grad: "from-accent/70 via-accent to-primary/60", icon: Volume2, label: "Music" },
+    { h: "h-64", src: img001.url, label: "Editorial" },
+    { h: "h-48", src: img002.url, label: "Product" },
+    { h: "h-72", src: img003.url, label: "Podcast" },
+    { h: "h-56", src: img004.url, label: "Fashion" },
+    { h: "h-60", src: img005.url, label: "Events" },
+    { h: "h-44", src: img006.url, label: "Panel" },
+    { h: "h-52", src: img007.url, label: "Studio" },
+    { h: "h-64", src: img008.url, label: "Cinema" },
   ];
   return (
     <section id="portfolio" className="relative mx-auto max-w-7xl px-6 py-20 sm:py-24">
@@ -1515,28 +1523,19 @@ function Portfolio() {
       <div className="columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
         {tiles.map((tile, i) => (
           <div key={i} className={`mb-4 break-inside-avoid group relative overflow-hidden rounded-2xl ring-1 ring-border ${tile.h}`}>
-            <div className={`absolute inset-0 bg-gradient-to-br ${tile.grad}`} />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_60%)]" />
-            <div className="absolute inset-0 opacity-20 mix-blend-overlay"
-              style={{ backgroundImage: "repeating-linear-gradient(45deg, #fff 0 1px, transparent 1px 14px)" }} />
+            <img src={tile.src} alt={tile.label} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-4 text-white">
-              <div className="flex items-center gap-2">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 backdrop-blur ring-1 ring-white/20">
-                  <tile.icon className="h-4 w-4" />
-                </span>
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest opacity-80">NewArt</div>
-                  <div className="font-bold">{tile.label}</div>
-                </div>
-              </div>
+              <div className="text-[10px] uppercase tracking-widest opacity-80">NewArt</div>
+              <div className="font-bold">{tile.label}</div>
             </div>
-            <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/10 transition" />
           </div>
         ))}
       </div>
     </section>
   );
 }
+
 
 /* -------------------- Store Services -------------------- */
 function StoreServices() {
