@@ -316,13 +316,15 @@ function Index() {
 
   return (
     <I18nCtx.Provider value={i18n}>
-      <div className="min-h-screen bg-background text-foreground" dir={i18n.dir}>
+      <div className="min-h-screen bg-background text-foreground isolate" dir={i18n.dir}>
         <FloatingControls theme={theme} setTheme={setTheme} />
         <Hero />
-        <Portfolio />
-        <Booking />
-        <StoreServices />
-        <Footer />
+        <main className="relative z-10 bg-background">
+          <Portfolio />
+          <Booking />
+          <StoreServices />
+          <Footer />
+        </main>
         <BookingFAB />
       </div>
     </I18nCtx.Provider>
@@ -359,15 +361,15 @@ function FloatingControls({ theme, setTheme }: { theme: "dark" | "light"; setThe
 function Hero() {
   const { t, lang } = useI18n();
   return (
-    <header className="relative overflow-hidden bg-ink text-ink-foreground">
+    <header className="relative isolate overflow-hidden bg-ink text-ink-foreground">
       {/* Background Video */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         <iframe
-          src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1"
-          allow="autoplay; encrypted-media; fullscreen"
-          allowFullScreen
+          src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1&muted=1"
+          allow="autoplay; encrypted-media"
           className="absolute left-1/2 top-1/2 h-[140%] w-[180%] -translate-x-1/2 -translate-y-1/2 border-0 pointer-events-none"
           title="NewArt Studio background"
+          tabIndex={-1}
         />
       </div>
       <div className="absolute inset-0 bg-ink/55" />
@@ -443,11 +445,11 @@ function Hero() {
             <div className="group relative aspect-[4/5] overflow-hidden rounded-3xl ring-1 ring-white/15 shadow-elegant">
               {/* Live video */}
               <iframe
-                src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1"
-                allow="autoplay; encrypted-media; fullscreen"
-                allowFullScreen
+                src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1&muted=1"
+                allow="autoplay; encrypted-media"
                 className="absolute inset-0 h-full w-full border-0"
                 title="NewArt Studio showreel"
+                tabIndex={-1}
               />
               {/* Soft gradient overlay for legibility (non-blocking) */}
               <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/60 to-transparent" />
