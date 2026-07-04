@@ -742,6 +742,10 @@ function Step1({
     return Math.min(MAX_HOURS, 22 - sh);
   }, [date, startTime]);
 
+  useEffect(() => {
+    if (hours > maxHours) setHours(maxHours);
+  }, [maxHours, hours, setHours]);
+
   const currentSpace = getSpacePrice(hours);
   const showStrike = hours === 1;
 
