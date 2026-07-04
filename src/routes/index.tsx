@@ -838,13 +838,18 @@ function Step1({
             {/* Pricing matrix preview */}
             <div className="mt-4 grid grid-cols-4 gap-1.5">
               {Object.entries(HOUR_PRICING).map(([h, p]) => {
-                const active = parseInt(h) === hours;
+                const hv = parseInt(h);
+                const active = hv === hours;
+                const disabled = hv > maxHours;
                 return (
                   <button
                     key={h}
-                    onClick={() => setHours(parseInt(h))}
+                    onClick={() => !disabled && setHours(hv)}
+                    disabled={disabled}
+                    title={disabled ? t("working_hours") : ""}
                     className={`rounded-lg px-2 py-2 text-center ring-1 transition ${
                       active ? "bg-primary text-primary-foreground ring-primary shadow-elegant"
+                        : disabled ? "cursor-not-allowed bg-muted text-muted-foreground/50 ring-border line-through opacity-60"
                         : "bg-background ring-border hover:ring-primary/50"
                     }`}
                   >
