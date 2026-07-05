@@ -370,16 +370,7 @@ function Hero() {
   const { t, lang } = useI18n();
   return (
     <header className="relative isolate overflow-hidden bg-ink text-ink-foreground">
-      {/* Background Video */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <iframe
-          src="https://drive.google.com/file/d/1fY2GBHtYfVoPSuOTIQnOP-QxCcQLKG0V/preview?autoplay=1&mute=1&muted=1"
-          allow="autoplay; encrypted-media"
-          className="absolute left-1/2 top-1/2 h-[140%] w-[180%] -translate-x-1/2 -translate-y-1/2 border-0 pointer-events-none"
-          title="NewArt Studio background"
-          tabIndex={-1}
-        />
-      </div>
+      {/* Background kept as dark ink gradient — no video/audio */}
       <div className="absolute inset-0 bg-ink/55" />
       <div className="absolute inset-0 bg-mesh opacity-40" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--ink)_85%)]" />
