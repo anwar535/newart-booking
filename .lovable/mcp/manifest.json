@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "newart-studio-mcp",
+      "version": "0.1.0",
+      "title": "NewArt Studio MCP"
+    },
+    "tools": [
+      {
+        "name": "get_pricing",
+        "title": "Get studio pricing",
+        "description": "Return the NewArt Studio hourly pricing matrix (1–8 hours) in SAR.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "hours": {
+              "description": "Optional specific hour count (1–8) to price.",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_working_hours",
+        "title": "Get studio working hours",
+        "description": "Return NewArt Studio's weekly working hours and locations.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
